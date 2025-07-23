@@ -9,17 +9,82 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
   const {question}=req.body;
   const raw=fs.readFileSync(path.join(process.cwd(),'data','articles.json'),'utf8');
   const articles=JSON.parse(raw);
-  const embedResponses=await Promise.all(articles.map((a: Article)=>openai.embeddings.create({model:'text-embedding-3-small',input:`${a.title}: ${a.summary}`})));
-  const vecs=embedResponses.map(r=>r.data[0].embedding);
-  const qv=(await openai.embeddings.create({model:'text-embedding-3-small',input:question})).data[0].embedding;
-  interface Article { title: string; summary: string; }
-  interface ScoredArticle { score: number; art: Article; }
-  const top=articles.map((a: Article, i: number)=>({score:cosine(vecs[i],qv),art:a})).sort((x: ScoredArticle,y: ScoredArticle)=>y.score-x.score).slice(0,3).map((x: ScoredArticle)=>x.art);
-  const prompt=`You are a helpful assistant trained ONLY on these articles:\n${top.map((a: Article, i: number)=>`#${i+1} ${a.title}: ${a.summary}`).join('\n\n')}\nQuestion: ${question}`;
-    const chat = await openai.chat.completions.create({
+  // First, create comprehensive summaries of all articles for RAG
+  const articleSummaries = await Promise.all(articles.map(async (a: Article) => {
+    const summaryResponse = await openai.chat.completions.create({
       model: 'gpt-4.1',
-      messages: [{ role: 'user', content: prompt }]
+      messages: [{
+        role: 'user',
+        content: `Analyze this auto finance article and create a detailed summary for RAG purposes:
+        
+Title: ${a.title}
+Summary: ${a.summary}
+
+Create a comprehensive summary covering:
+- Key financial metrics and data points
+- Market trends and implications
+- Regulatory or policy impacts
+- Consumer behavior insights
+- Industry risks or opportunities
+
+Format as a detailed paragraph for RAG retrieval.`
+      }]
     });
-    
-    res.status(200).json({ response: chat.choices[0].message.content });
+    return {
+      ...a,
+      ragSummary: summaryResponse.choices[0].message.content || a.summary
+    };
+  }));
+
+  // Create embeddings from the enhanced RAG summaries
+  const embedResponses = await Promise.all(articleSummaries.map((a) =>
+    openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: `${a.title}: ${a.ragSummary}`
+    })
+  ));
+  
+  const vecs = embedResponses.map(r => r.data[0].embedding);
+  const qv = (await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: question
+  })).data[0].embedding;
+
+  interface Article { title: string; summary: string; }
+  interface EnhancedArticle extends Article { ragSummary: string; }
+  interface ScoredArticle { score: number; art: EnhancedArticle; }
+  
+  const scoredArticles = articleSummaries.map((a: EnhancedArticle, i: number) => ({
+    score: cosine(vecs[i], qv),
+    art: a
+  })).sort((x: ScoredArticle, y: ScoredArticle) => y.score - x.score);
+
+  // Use top 3 most relevant articles for context
+  const topArticles = scoredArticles.slice(0, 3).map((x: ScoredArticle) => x.art);
+
+  const prompt = `You are an auto finance industry assistant with access to current market data and analysis.
+
+KNOWLEDGE BASE (Retrieved Articles):
+${topArticles.map((a, i) => `
+Article ${i + 1}: ${a.title}
+Content: ${a.ragSummary}
+`).join('\n')}
+
+INSTRUCTIONS:
+- Answer ONLY questions about auto finance, automotive lending, car loans, industry trends, or the provided articles
+- Base your responses primarily on the retrieved article content above
+- If the question is not related to auto finance or the articles, politely decline and redirect to auto finance topics
+- Provide specific data points and insights from the articles when available
+- If the retrieved articles don't contain enough information, acknowledge this limitation
+
+USER QUESTION: ${question}
+
+RESPONSE:`;
+
+  const chat = await openai.chat.completions.create({
+    model: 'gpt-4.1',
+    messages: [{ role: 'user', content: prompt }]
+  });
+
+  res.status(200).json({ response: chat.choices[0].message.content });
   }
