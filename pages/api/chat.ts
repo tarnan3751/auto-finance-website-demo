@@ -70,7 +70,7 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
     const prompt = `You are an expert auto finance industry analyst and advisor with deep knowledge of automotive lending, market trends, and regulatory developments.
 
 CURRENT MARKET INTELLIGENCE (Live Auto Finance News):
-${topArticles.map((a, i) => `
+${topArticles.map((a: any, i: number) => `
 [${i + 1}] ${a.title}
 • Source: ${a.source || 'News Source'} | ${a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : 'Recent'}
 • Summary: ${a.aiSummary || a.summary}
