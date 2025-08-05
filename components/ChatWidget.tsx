@@ -12,7 +12,7 @@ export default function ChatWidget({ onOpenChat }: ChatWidgetProps) {
     return (
       <button
         onClick={() => setIsMinimized(false)}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110"
         aria-label="Open chat"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +32,7 @@ export default function ChatWidget({ onOpenChat }: ChatWidgetProps) {
       >
         {/* Main Widget Container */}
         <div
-          className="glass rounded-2xl p-6 pr-16 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700 hover:border-indigo-500 group relative"
+          className="glass rounded-2xl p-6 pr-16 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700 hover:border-lime-500 group relative"
           style={{
             background: 'rgba(0, 0, 0, 0.7)',
             backdropFilter: 'blur(20px)',
@@ -51,7 +51,7 @@ export default function ChatWidget({ onOpenChat }: ChatWidgetProps) {
           </button>
 
           {/* Animated gradient background */}
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-600/10 via-purple-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-teal-600/10 via-lime-600/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
           {/* Clickable Content Area */}
           <div
@@ -68,8 +68,8 @@ export default function ChatWidget({ onOpenChat }: ChatWidgetProps) {
             {/* Chat icon with pulse effect */}
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl blur-lg opacity-50 animate-pulse"></div>
-                <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-3 rounded-xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 rounded-xl blur-lg opacity-50 animate-pulse"></div>
+                <div className="relative bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 p-3 rounded-xl">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
@@ -85,7 +85,7 @@ export default function ChatWidget({ onOpenChat }: ChatWidgetProps) {
 
             {/* Hover arrow */}
             <div className={`absolute -right-6 top-1/2 -translate-y-1/2 transform transition-all duration-300 ${isHovered ? 'translate-x-0 opacity-100' : 'translate-x-2 opacity-0'}`}>
-              <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>

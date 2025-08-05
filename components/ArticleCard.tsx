@@ -19,8 +19,8 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:P
       {/* Rank Badge */}
       <div className="absolute -top-3 -left-3 z-10">
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full blur opacity-75"></div>
-          <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 w-12 h-12 rounded-full flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 rounded-full blur opacity-75"></div>
+          <div className="relative bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 w-12 h-12 rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-sm">{rank}</span>
           </div>
         </div>
@@ -37,8 +37,12 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:P
               e.currentTarget.style.display = 'none';
               e.currentTarget.parentElement!.innerHTML = `
                 <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-700">
-                  <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <g>
+                      <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path d="M3 3l18 18" stroke-linecap="round" />
+                    </g>
                   </svg>
                 </div>
               `;
@@ -53,12 +57,12 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:P
           
           {/* AI Summary indicator */}
           {aiSummary && (
-            <div className="absolute bottom-2 right-2 px-2 py-1 rounded-md bg-indigo-600/20 backdrop-blur-sm border border-indigo-500/30">
-              <span className="text-xs text-indigo-300 font-medium flex items-center gap-1">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="absolute bottom-2 right-2 px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
+              <span className="text-xs font-medium flex items-center gap-1">
+                <svg className="w-3 h-3 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                AI Enhanced
+                <span className="text-gradient">AI Enhanced</span>
               </span>
             </div>
           )}
@@ -91,9 +95,9 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:P
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-indigo-400 font-medium text-sm group-hover:text-indigo-300 transition-colors">
-              <span>Read article</span>
-              <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 font-medium text-sm">
+              <span className="text-gradient">Read article</span>
+              <svg className="w-4 h-4 text-lime-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </div>
@@ -102,7 +106,7 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:P
       </div>
 
       {/* Hover effect gradient */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-600/0 via-purple-600/0 to-pink-600/0 group-hover:from-indigo-600/10 group-hover:via-purple-600/10 group-hover:to-pink-600/10 transition-all duration-500 pointer-events-none"></div>
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-teal-600/0 via-teal-600/0 to-lime-500/0 group-hover:from-teal-600/10 group-hover:via-teal-600/10 group-hover:to-lime-500/10 transition-all duration-500 pointer-events-none"></div>
     </a>
   );
 }

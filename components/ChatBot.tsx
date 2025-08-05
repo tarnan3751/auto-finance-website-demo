@@ -186,8 +186,8 @@ export default function ChatBot({ onClose }: ChatBotProps) {
         <div className="flex items-center justify-between p-6 border-b border-gray-800">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg blur opacity-50"></div>
-              <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
+              <div className="absolute inset-0 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 rounded-lg blur opacity-50"></div>
+              <div className="relative bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 p-2 rounded-lg">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
@@ -203,7 +203,7 @@ export default function ChatBot({ onClose }: ChatBotProps) {
             {/* History Toggle Button */}
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className={`p-2 rounded-lg transition-colors ${showHistory ? 'bg-indigo-600 text-white' : 'hover:bg-gray-800 text-gray-400'}`}
+              className={`p-2 rounded-lg transition-colors ${showHistory ? 'bg-lime-600 text-white' : 'hover:bg-gray-800 text-gray-400'}`}
               title="Chat History"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,11 +265,11 @@ export default function ChatBot({ onClose }: ChatBotProps) {
                   <button
                     key={session.id}
                     onClick={() => loadChatSession(session)}
-                    className="w-full text-left p-4 glass rounded-xl border border-gray-700 hover:border-indigo-500 transition-all group"
+                    className="w-full text-left p-4 glass rounded-xl border border-gray-700 hover:border-lime-500 transition-all group"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 pr-4">
-                        <h5 className="text-sm font-medium text-white group-hover:text-indigo-400 transition-colors line-clamp-1">
+                        <h5 className="text-sm font-medium text-white group-hover:text-lime-400 transition-colors line-clamp-1">
                           {session.title}
                         </h5>
                         <p className="text-xs text-gray-400 mt-1">
@@ -296,12 +296,12 @@ export default function ChatBot({ onClose }: ChatBotProps) {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                     message.isUser
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-lime-600 text-white'
                       : 'glass border border-gray-700 text-gray-200'
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
-                  <p className={`text-xs mt-1 ${message.isUser ? 'text-indigo-200' : 'text-gray-500'}`}>
+                  <p className={`text-xs mt-1 ${message.isUser ? 'text-lime-200' : 'text-gray-500'}`}>
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -312,9 +312,9 @@ export default function ChatBot({ onClose }: ChatBotProps) {
               <div className="flex justify-start animate-slide-in">
                 <div className="glass border border-gray-700 rounded-2xl px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                    <div className="w-2 h-2 bg-lime-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-lime-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-lime-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
                   </div>
                 </div>
               </div>
@@ -333,7 +333,7 @@ export default function ChatBot({ onClose }: ChatBotProps) {
                 <button
                   key={i}
                   onClick={() => setQuestion(q)}
-                  className="text-xs px-3 py-1.5 rounded-full glass border border-gray-700 text-gray-300 hover:border-indigo-500 hover:text-white transition-all"
+                  className="text-xs px-3 py-1.5 rounded-full glass border border-gray-700 text-gray-300 hover:border-lime-500 hover:text-white transition-all"
                 >
                   {q}
                 </button>
@@ -349,7 +349,7 @@ export default function ChatBot({ onClose }: ChatBotProps) {
               <input
                 ref={inputRef}
                 type="text"
-                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent transition-all"
                 placeholder="Ask me anything about auto finance..."
                 value={question}
                 onChange={e => setQuestion(e.target.value)}

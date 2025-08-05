@@ -16,7 +16,7 @@ export default function LoadingSpinner({ size = 'md', text }: LoadingSpinnerProp
     <div className="flex flex-col items-center justify-center gap-4">
       <div className="relative">
         <div className={`${sizeClasses[size]} relative`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-spin opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 rounded-full animate-spin opacity-20"></div>
           <svg className={`${sizeClasses[size]} animate-spin`} viewBox="0 0 24 24">
             <circle
               className="opacity-25"

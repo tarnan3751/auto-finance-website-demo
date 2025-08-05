@@ -1,4 +1,5 @@
 import {useEffect,useState} from 'react';
+import Head from 'next/head';
 import ArticleCard from '@components/ArticleCard';
 import ChatBot from '@components/ChatBot';
 import ChatWidget from '@components/ChatWidget';
@@ -83,9 +84,16 @@ export default function Home(){
   },[]);
   
   return (
-    <div className="min-h-screen bg-gray-900 relative overflow-hidden">
-      {/* Background mesh gradient */}
-      <div className="absolute inset-0 bg-mesh-gradient opacity-30"></div>
+    <>
+      <Head>
+        <title>ExeterHub - AI-Powered Auto Finance Intelligence</title>
+        <meta name="description" content="Real-time auto finance news and insights powered by AI. Stay ahead with market trends, industry analysis, and intelligent summaries." />
+        <link rel="icon" href="/images/exeter_logo.png" />
+      </Head>
+      
+      <div className="min-h-screen bg-gray-900 relative overflow-hidden">
+        {/* Background mesh gradient */}
+        <div className="absolute inset-0 bg-mesh-gradient opacity-30"></div>
       
       <div className="relative z-10">
         {/* Modern Header */}
@@ -95,16 +103,14 @@ export default function Home(){
               {/* Logo and Brand */}
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl blur-lg opacity-50"></div>
-                  <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 p-3 rounded-xl">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+                  <div className="absolute inset-0 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 rounded-xl blur-lg opacity-50"></div>
+                  <div className="relative">
+                    <img src="/images/exeter_logo.png" alt="Exeter Logo" className="w-12 h-12 object-contain" />
                   </div>
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-white font-space">
-                    AutoFinance<span className="text-gradient">Hub</span>
+                    Exeter<span className="text-gradient">Hub</span>
                   </h1>
                   <p className="text-xs text-gray-400 -mt-1">AI-Powered Market Intelligence</p>
                 </div>
@@ -132,8 +138,8 @@ export default function Home(){
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gray-700 mb-8 animate-fade-in">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                <span className="text-sm text-gray-300">Real-time market analysis powered by GPT-4</span>
+                <div className="w-2 h-2 bg-lime-500 rounded-full"></div>
+                <span className="text-sm text-gray-300">Real-time market analysis powered by GPT-4o</span>
               </div>
               
               <h1 className="text-4xl md:text-6xl font-bold font-space mb-6 animate-fade-in" style={{animationDelay: '0.1s'}}>
@@ -246,12 +252,10 @@ export default function Home(){
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div className="md:col-span-2">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+                  <div>
+                    <img src="/images/exeter_logo.png" alt="Exeter Logo" className="w-10 h-10 object-contain" />
                   </div>
-                  <span className="text-xl font-bold text-white font-space">AutoFinanceHub</span>
+                  <span className="text-xl font-bold text-white font-space">ExeterHub</span>
                 </div>
                 <p className="text-gray-400 text-sm max-w-md">
                   Your trusted source for AI-powered automotive finance intelligence. Real-time market insights, trend analysis, and industry news.
@@ -275,9 +279,9 @@ export default function Home(){
                   <input
                     type="email"
                     placeholder="Enter your email"
-                    className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500"
                   />
-                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors">
+                  <button className="px-4 py-2 bg-lime-600 text-white rounded-lg text-sm hover:bg-lime-700 transition-colors">
                     Subscribe
                   </button>
                 </div>
@@ -286,7 +290,7 @@ export default function Home(){
             
             <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-sm text-gray-400">
-                © 2025 AutoFinanceHub. Powered by AI • Real-time Financial Intelligence
+                © 2025 ExeterHub. Powered by AI • Real-time Financial Intelligence
               </p>
               <div className="flex items-center gap-6 text-sm text-gray-400">
                 <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
@@ -304,5 +308,6 @@ export default function Home(){
       {/* Floating Chat Widget */}
       <ChatWidget onOpenChat={() => setChatOpen(true)} />
     </div>
+    </>
   );
 }
