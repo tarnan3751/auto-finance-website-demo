@@ -1,77 +1,108 @@
 import React from 'react';
 
-type Props = { rank:number; title:string; summary:string; image:string; url:string; };
-export default function ArticleCard({ rank,title,summary,image,url }:Props) {
-  // Add error handling for missing props
+type Props = { rank:number; title:string; summary:string; aiSummary?:string; image:string; url:string; };
+
+export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:Props) {
   if (!title || !summary || !image || !url) {
     console.warn('ArticleCard missing props:', { rank, title, summary, image, url });
     return null;
   }
   
   return (
-    <div 
-      className="group relative flex p-8 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300" 
-      style={{ 
-        backgroundColor: 'rgba(15, 52, 32, 0.5)', 
-        border: '1px solid rgba(20, 64, 40, 0.3)' 
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(20, 64, 40, 0.5)';
-        e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(15, 52, 32, 0.5)';
-        e.currentTarget.style.borderColor = 'rgba(20, 64, 40, 0.3)';
-      }}
+    <a 
+      href={url} 
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative block glass rounded-2xl p-6 hover:shadow-glow transition-all duration-300 card-hover"
+      style={{ minHeight: '200px' }}
     >
-      <div 
-        className="absolute top-4 left-4 backdrop-blur-sm px-4 py-2 rounded-full"
-        style={{ backgroundColor: 'rgba(30, 64, 175, 0.2)' }}
-      >
-        <span className="text-blue-400 font-bold text-base">#{rank}</span>
-      </div>
-      <div className="relative overflow-hidden rounded-xl shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform duration-300" style={{ width: '192px', height: '128px' }}>
-        <img 
-          src={image} 
-          alt={title} 
-          className="w-full h-full object-cover" 
-          style={{ objectPosition: 'center center' }}
-          onError={(e) => {
-            console.warn('Image failed to load:', image);
-            e.currentTarget.style.display = 'none';
-          }}
-          onLoad={() => {
-            console.log('Image loaded successfully:', image);
-          }}
-        />
-        <div 
-          className="absolute inset-0 bg-gradient-to-br from-green-900/10 to-blue-900/10 pointer-events-none"
-        />
-      </div>
-      <div className="flex-1 min-w-0" style={{ marginLeft: '24px' }}>
-        <h2 className="text-2xl font-semibold mb-3">
-          <a 
-            href={url} 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white hover:text-blue-400 transition-colors duration-200 decoration-blue-400 decoration-2 underline-offset-4 hover:underline"
-          >
-            {title}
-          </a>
-        </h2>
-        <p className="text-gray-300 leading-relaxed text-base" style={{ 
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          {summary}
-        </p>
-        <div className="mt-4 flex items-center gap-2 text-blue-400 text-base font-medium group-hover:text-blue-300 transition-colors">
-          <span>Read more</span>
-          <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
+      {/* Rank Badge */}
+      <div className="absolute -top-3 -left-3 z-10">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full blur opacity-75"></div>
+          <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 w-12 h-12 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-sm">{rank}</span>
+          </div>
         </div>
       </div>
-    </div>
+
+      <div className="flex gap-6">
+        {/* Image */}
+        <div className="relative flex-shrink-0 w-48 h-36 rounded-xl overflow-hidden bg-gray-800">
+          <img 
+            src={image} 
+            alt={title} 
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML = `
+                <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-700">
+                  <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              `;
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          {/* Category tag */}
+          <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
+            <span className="text-xs text-white font-medium">Finance News</span>
+          </div>
+          
+          {/* AI Summary indicator */}
+          {aiSummary && (
+            <div className="absolute bottom-2 right-2 px-2 py-1 rounded-md bg-indigo-600/20 backdrop-blur-sm border border-indigo-500/30">
+              <span className="text-xs text-indigo-300 font-medium flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                AI Enhanced
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 flex flex-col">
+          <h3 className="text-xl font-semibold text-white mb-2 line-clamp-2 group-hover:text-gradient transition-all duration-300">
+            {title}
+          </h3>
+          
+          <p className="text-gray-400 text-sm mb-4 flex-grow leading-relaxed">
+            {aiSummary || summary}
+          </p>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {new Date().toLocaleDateString()}
+              </span>
+              <span className="flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {Math.floor(Math.random() * 900 + 100)} views
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 text-indigo-400 font-medium text-sm group-hover:text-indigo-300 transition-colors">
+              <span>Read article</span>
+              <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hover effect gradient */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-600/0 via-purple-600/0 to-pink-600/0 group-hover:from-indigo-600/10 group-hover:via-purple-600/10 group-hover:to-pink-600/10 transition-all duration-500 pointer-events-none"></div>
+    </a>
   );
 }

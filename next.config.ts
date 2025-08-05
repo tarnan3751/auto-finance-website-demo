@@ -2,7 +2,6 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: { turbo: true },
   webpack(config: any) {
     config.resolve.alias = {
       ...config.resolve.alias,

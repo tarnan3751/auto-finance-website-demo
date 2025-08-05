@@ -18,7 +18,7 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
         content: `Analyze this auto finance article and create a detailed summary for RAG purposes:
         
 Title: ${a.title}
-Summary: ${a.summary}
+Summary: ${a.aiSummary || a.summary}
 
 Create a comprehensive summary covering:
 - Key financial metrics and data points
