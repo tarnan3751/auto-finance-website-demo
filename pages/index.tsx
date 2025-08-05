@@ -128,7 +128,7 @@ export default function Home(){
         </header>
 
         {/* Hero Section */}
-        <section className="relative px-6 py-20 md:py-32">
+        <section className="relative px-6 py-16 md:py-24">
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gray-700 mb-8 animate-fade-in">
@@ -136,30 +136,30 @@ export default function Home(){
                 <span className="text-sm text-gray-300">Real-time market analysis powered by GPT-4</span>
               </div>
               
-              <h1 className="text-5xl md:text-7xl font-bold font-space mb-6 animate-fade-in" style={{animationDelay: '0.1s'}}>
+              <h1 className="text-4xl md:text-6xl font-bold font-space mb-6 animate-fade-in" style={{animationDelay: '0.1s'}}>
                 <span className="text-white">The Future of</span>
                 <br />
                 <span className="text-gradient">Auto Finance</span>
                 <span className="text-white"> Intelligence</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 animate-fade-in" style={{animationDelay: '0.2s'}}>
+              <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-12 animate-fade-in" style={{animationDelay: '0.2s'}}>
                 Stay ahead with AI-curated insights on automotive financing, market trends, and industry analysis. Updated in real-time.
               </p>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto animate-fade-in" style={{animationDelay: '0.3s'}}>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white">24/7</div>
-                  <div className="text-sm text-gray-500 mt-1">Monitoring</div>
+              <div className="flex justify-center items-start gap-16 md:gap-24 animate-fade-in" style={{animationDelay: '0.3s'}}>
+                <div className="flex flex-col items-center min-w-[100px]">
+                  <div className="text-3xl font-bold text-white">24/7</div>
+                  <div className="text-sm text-gray-500 mt-1 whitespace-nowrap">Monitoring</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white">150k+</div>
-                  <div className="text-sm text-gray-500 mt-1">Sources</div>
+                <div className="flex flex-col items-center min-w-[100px]">
+                  <div className="text-3xl font-bold text-white">150k+</div>
+                  <div className="text-sm text-gray-500 mt-1 whitespace-nowrap">Sources</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white">AI</div>
-                  <div className="text-sm text-gray-500 mt-1">Powered</div>
+                <div className="flex flex-col items-center min-w-[100px]">
+                  <div className="text-3xl font-bold text-white">AI</div>
+                  <div className="text-sm text-gray-500 mt-1 whitespace-nowrap">Powered</div>
                 </div>
               </div>
             </div>
