@@ -14,21 +14,35 @@ function cosine(a:number[],b:number[]){const dot=a.reduce((s,x,i)=>s+x*b[i],0);c
 
 export default async function handler(req:NextApiRequest,res:NextApiResponse){
   if(req.method!=='POST')return res.status(405).end();
-  const {question}=req.body;
+  const {question, articles: providedArticles}=req.body;
+  
+  console.log('[Chat API] Received question:', question);
+  console.log('[Chat API] Provided articles count:', providedArticles?.length || 0);
   
   try {
     let articles = [];
     
-    // Check cache first
-    if (articlesCache && Date.now() - articlesCache.timestamp < CACHE_DURATION) {
+    // Use provided articles if available, otherwise fetch from cache or API
+    if (providedArticles && Array.isArray(providedArticles) && providedArticles.length > 0) {
+      articles = providedArticles;
+      console.log('[Chat API] Using provided articles from frontend');
+      // Update cache with provided articles
+      articlesCache = {
+        data: articles,
+        timestamp: Date.now()
+      };
+    } else if (articlesCache && Date.now() - articlesCache.timestamp < CACHE_DURATION) {
       articles = articlesCache.data;
+      console.log('[Chat API] Using cached articles');
     } else {
       // Fetch fresh articles from our news API
+      console.log('[Chat API] Fetching fresh articles from API');
       const newsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/news`);
       const newsData = await newsResponse.json();
       
       if (newsData.articles && Array.isArray(newsData.articles)) {
         articles = newsData.articles;
+        console.log('[Chat API] Fetched', articles.length, 'articles from API');
         // Update cache
         articlesCache = {
           data: articles,

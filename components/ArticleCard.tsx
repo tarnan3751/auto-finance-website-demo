@@ -1,12 +1,33 @@
 import React from 'react';
 
-type Props = { rank:number; title:string; summary:string; aiSummary?:string; image:string; url:string; };
+type Props = { rank:number; title:string; summary:string; aiSummary?:string; image:string; url:string; publishedAt?:string; };
 
-export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:Props) {
+export default function ArticleCard({ rank,title,summary,aiSummary,image,url,publishedAt }:Props) {
   if (!title || !summary || !image || !url) {
     console.warn('ArticleCard missing props:', { rank, title, summary, image, url });
     return null;
   }
+  
+  // Format the published date
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return new Date().toLocaleDateString();
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInHours / 24);
+    
+    if (diffInHours < 1) {
+      return 'Just now';
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    } else if (diffInDays < 7) {
+      return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
   
   return (
     <a 
@@ -84,7 +105,7 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:P
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {new Date().toLocaleDateString()}
+                {formatDate(publishedAt)}
               </span>
               <span className="flex items-center gap-1">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,9 +116,9 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url }:P
               </span>
             </div>
 
-            <div className="flex items-center gap-2 font-medium text-sm">
-              <span className="text-gradient">Read article</span>
-              <svg className="w-4 h-4 text-lime-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 font-medium text-sm text-lime-400 group-hover:text-lime-300 transition-colors">
+              <span>Read article</span>
+              <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </div>

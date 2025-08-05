@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 
 interface ChatBotProps {
   onClose?: () => void;
+  currentArticles?: any[];
 }
 
 interface Message {
@@ -18,7 +19,7 @@ interface ChatSession {
   timestamp: Date;
 }
 
-export default function ChatBot({ onClose }: ChatBotProps) {
+export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -106,7 +107,10 @@ export default function ChatBot({ onClose }: ChatBotProps) {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: userMessage.text })
+        body: JSON.stringify({ 
+          question: userMessage.text,
+          articles: currentArticles 
+        })
       });
       
       const data = await res.json();

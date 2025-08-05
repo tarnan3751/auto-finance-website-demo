@@ -1,14 +1,34 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { fetchAutoFinanceNews, fetchTopHeadlines, Article } from '@lib/newsapi';
+import { fetchAutoFinanceNews, fetchTopHeadlines, Article, FilterOptions } from '@lib/newsapi';
 
-// Cache for storing articles with timestamp
-let articlesCache: {
+// Cache for storing articles with timestamp by filter key
+interface CacheEntry {
   data: Article[];
   timestamp: number;
-} | null = null;
+}
+
+// Use a Map to store different cache entries for different filter combinations
+const articlesCache = new Map<string, CacheEntry>();
 
 // Cache duration: 5 minutes (300000 ms)
 const CACHE_DURATION = 5 * 60 * 1000;
+
+// Function to clean old cache entries
+function cleanCache() {
+  const now = Date.now();
+  const keysToDelete: string[] = [];
+  
+  articlesCache.forEach((entry, key) => {
+    if (now - entry.timestamp > CACHE_DURATION) {
+      keysToDelete.push(key);
+    }
+  });
+  
+  keysToDelete.forEach(key => {
+    articlesCache.delete(key);
+    console.log('[/api/news] Cleaned expired cache for key:', key);
+  });
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -16,21 +36,64 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Check if we have cached data that's still fresh
-    if (articlesCache && Date.now() - articlesCache.timestamp < CACHE_DURATION) {
-      return res.status(200).json({ articles: articlesCache.data });
+    // Clean old cache entries periodically
+    cleanCache();
+    
+    // Parse filter parameters from query
+    const filters: FilterOptions = {
+      dateRange: req.query.dateRange as string || 'all',
+      country: req.query.country as string || 'all',
+      sourceQuality: req.query.sourceQuality as string || 'all'
+    };
+
+    const filterKey = JSON.stringify(filters);
+    console.log('[/api/news] Called with filters:', filters);
+    console.log('[/api/news] Filter key:', filterKey);
+    
+    // Check for force refresh parameter
+    const forceRefresh = req.query.forceRefresh === 'true';
+    
+    // Get cached entry for this filter combination
+    const cachedEntry = articlesCache.get(filterKey);
+    const shouldUseCache = !forceRefresh &&
+                          cachedEntry &&
+                          Date.now() - cachedEntry.timestamp < CACHE_DURATION;
+    
+    console.log('[/api/news] Cache check:', {
+      forceRefresh,
+      hasCache: !!cachedEntry,
+      cacheAge: cachedEntry ? Date.now() - cachedEntry.timestamp : null,
+      shouldUseCache,
+      totalCacheEntries: articlesCache.size
+    });
+
+    if (shouldUseCache && cachedEntry) {
+      console.log('[/api/news] Returning cached articles for filter key:', filterKey);
+      return res.status(200).json({ articles: cachedEntry.data });
     }
+    
+    console.log('[/api/news] Cache miss or expired, fetching fresh data...');
 
     // Fetch fresh articles from NewsAPI
     let articles: Article[] = [];
     
+    console.log('[/api/news] Starting to fetch articles...');
+    
     try {
-      // Try to get auto finance specific articles first
-      articles = await fetchAutoFinanceNews('relevancy', 15);
+      // Always use the everything endpoint for better results
+      console.log('[/api/news] Fetching news with filters...');
+      articles = await fetchAutoFinanceNews('relevancy', 15, filters);
       
-      // If we don't get enough articles, supplement with business headlines
-      if (articles.length < 10) {
-        const headlines = await fetchTopHeadlines('business', 'us', 10);
+      // If we got no results and a country was specified, try without country filter
+      if (articles.length === 0 && filters.country && filters.country !== 'all') {
+        console.log('[/api/news] No results for country filter, trying international search...');
+        const internationalFilters = { ...filters, country: 'all' };
+        articles = await fetchAutoFinanceNews('relevancy', 15, internationalFilters);
+      }
+      
+      // If we don't get enough articles, supplement with more
+      if (articles.length < 10 && (!filters.country || filters.country === 'all')) {
+        const headlines = await fetchTopHeadlines('business', 'us', 10, filters);
         // Filter headlines to only include auto-related content
         const autoHeadlines = headlines.filter(article => 
           article.title.toLowerCase().includes('auto') ||
@@ -50,22 +113,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Limit to top 10 articles
       articles = articles.slice(0, 10);
+      
+      console.log(`[/api/news] Final article count: ${articles.length}`);
+      
+      if (articles.length === 0) {
+        console.log('[/api/news] WARNING: No articles found after all filtering');
+      }
 
-      // Update cache
-      articlesCache = {
+      // Update cache for this filter combination
+      articlesCache.set(filterKey, {
         data: articles,
         timestamp: Date.now()
-      };
-
+      });
+      
+      console.log('[/api/news] Updated cache for filter key:', filterKey);
+      console.log('[/api/news] Total cache entries:', articlesCache.size);
+      console.log('[/api/news] Sending response with articles:', articles.length);
+      
       res.status(200).json({ articles });
 
     } catch (apiError) {
-      console.error('NewsAPI Error:', apiError);
+      console.error('[/api/news] NewsAPI Error:', apiError);
       
-      // If NewsAPI fails, return cached data if available
-      if (articlesCache) {
-        console.log('Returning stale cache due to API error');
-        return res.status(200).json({ articles: articlesCache.data });
+      // If NewsAPI fails, return cached data if available for this filter
+      const cachedEntry = articlesCache.get(filterKey);
+      if (cachedEntry) {
+        console.log('[/api/news] Returning stale cache due to API error for filter key:', filterKey);
+        return res.status(200).json({ articles: cachedEntry.data });
       }
       
       // If no cache available, return error

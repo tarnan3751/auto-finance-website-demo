@@ -4,6 +4,7 @@ import ArticleCard from '@components/ArticleCard';
 import ChatBot from '@components/ChatBot';
 import ChatWidget from '@components/ChatWidget';
 import LoadingSpinner from '@components/LoadingSpinner';
+import FilterDropdown, { FilterOptions } from '@components/FilterDropdown';
 
 export default function Home(){
   const [sorted,setSorted]=useState<any[]>([]);
@@ -11,26 +12,44 @@ export default function Home(){
   const [newsLoading,setNewsLoading]=useState(true);
   const [chatOpen, setChatOpen] = useState(false);
   const [error,setError]=useState<string|null>(null);
+  const [filters, setFilters] = useState<FilterOptions>({
+    dateRange: 'all',
+    country: 'all',
+    sourceQuality: 'all'
+  });
   
   useEffect(()=>{
     // Fetch real news articles from NewsAPI
     const fetchAndProcessArticles = async () => {
       try {
+        setLoading(true);
         setNewsLoading(true);
         setError(null);
         
+        // Build query string with filters
+        const queryParams = new URLSearchParams({
+          dateRange: filters.dateRange,
+          country: filters.country,
+          sourceQuality: filters.sourceQuality,
+          // Add timestamp to ensure fresh fetch when filters change
+          _t: Date.now().toString()
+        });
+        
         // Fetch news articles
-        const newsResponse = await fetch('/api/news');
+        console.log('Fetching news with params:', queryParams.toString());
+        const newsResponse = await fetch(`/api/news?${queryParams}`);
         const newsData = await newsResponse.json();
         
         if (!newsResponse.ok) {
-          throw new Error(newsData.message || 'Failed to fetch news');
+          console.error('News API response error:', newsResponse.status, newsData);
+          throw new Error(newsData.error || newsData.message || 'Failed to fetch news');
         }
         
         const articles = newsData.articles;
         
         if (!articles || articles.length === 0) {
-          setError('No articles found. Please try again later.');
+          console.log('No articles found with current filters');
+          setError('No articles found with the current filters. Try adjusting your filter settings or resetting filters.');
           setNewsLoading(false);
           setLoading(false);
           return;
@@ -81,7 +100,7 @@ export default function Home(){
     };
     
     fetchAndProcessArticles();
-  },[]);
+  },[filters]); // Re-fetch when filters change
   
   return (
     <>
@@ -173,7 +192,7 @@ export default function Home(){
         </section>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-6 pb-20">
+        <main className="max-w-7xl mx-auto px-6 pb-20 min-h-[600px]">
           {/* Section Header */}
           <div className="flex items-center justify-between mb-10">
             <div>
@@ -186,19 +205,18 @@ export default function Home(){
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => window.location.reload()}
-                className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+                className="flex items-center gap-2 px-4 py-2 glass rounded-lg border border-gray-700 hover:border-lime-500 text-gray-300 hover:text-white transition-all"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Refresh
+                <span className="font-medium">Refresh</span>
               </button>
-              <button className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-                Filter
-              </button>
+              <FilterDropdown
+                filters={filters}
+                onFilterChange={setFilters}
+                isLoading={newsLoading}
+              />
             </div>
           </div>
 
@@ -211,7 +229,7 @@ export default function Home(){
               <p className="text-gray-400 mb-4">{error}</p>
               <button 
                 onClick={() => window.location.reload()}
-                className="btn btn-primary"
+                className="px-4 py-2 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 text-white rounded-lg font-medium hover:shadow-glow transition-all"
               >
                 Try Again
               </button>
@@ -303,7 +321,7 @@ export default function Home(){
       </div>
 
       {/* Chat Interface */}
-      {chatOpen && <ChatBot onClose={() => setChatOpen(false)} />}
+      {chatOpen && <ChatBot onClose={() => setChatOpen(false)} currentArticles={sorted} />}
       
       {/* Floating Chat Widget */}
       <ChatWidget onOpenChat={() => setChatOpen(true)} />
