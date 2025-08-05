@@ -1,90 +1,115 @@
-import fs from 'fs';
-import path from 'path';
 import {NextApiRequest,NextApiResponse} from 'next';
 import {OpenAI} from 'openai';
 const openai=new OpenAI({apiKey:process.env.OPENAI_API_KEY});
+
+// Simple in-memory cache for articles
+let articlesCache: {
+  data: any[];
+  timestamp: number;
+} | null = null;
+
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 function cosine(a:number[],b:number[]){const dot=a.reduce((s,x,i)=>s+x*b[i],0);const magA=Math.sqrt(a.reduce((s,x)=>s+x*x,0));const magB=Math.sqrt(b.reduce((s,y)=>s+y*y,0));return dot/(magA*magB);}  
+
 export default async function handler(req:NextApiRequest,res:NextApiResponse){
   if(req.method!=='POST')return res.status(405).end();
   const {question}=req.body;
-  const raw=fs.readFileSync(path.join(process.cwd(),'data','articles.json'),'utf8');
-  const articles=JSON.parse(raw);
-  // First, create comprehensive summaries of all articles for RAG
-  const articleSummaries = await Promise.all(articles.map(async (a: Article) => {
-    const summaryResponse = await openai.chat.completions.create({
-      model: 'gpt-4.1',
-      messages: [{
-        role: 'user',
-        content: `Analyze this auto finance article and create a detailed summary for RAG purposes:
-        
-Title: ${a.title}
-Summary: ${a.aiSummary || a.summary}
-
-Create a comprehensive summary covering:
-- Key financial metrics and data points
-- Market trends and implications
-- Regulatory or policy impacts
-- Consumer behavior insights
-- Industry risks or opportunities
-
-Format as a detailed paragraph for RAG retrieval.`
-      }]
-    });
-    return {
-      ...a,
-      ragSummary: summaryResponse.choices[0].message.content || a.summary
-    };
-  }));
-
-  // Create embeddings from the enhanced RAG summaries
-  const embedResponses = await Promise.all(articleSummaries.map((a) =>
-    openai.embeddings.create({
+  
+  try {
+    let articles = [];
+    
+    // Check cache first
+    if (articlesCache && Date.now() - articlesCache.timestamp < CACHE_DURATION) {
+      articles = articlesCache.data;
+    } else {
+      // Fetch fresh articles from our news API
+      const newsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/news`);
+      const newsData = await newsResponse.json();
+      
+      if (newsData.articles && Array.isArray(newsData.articles)) {
+        articles = newsData.articles;
+        // Update cache
+        articlesCache = {
+          data: articles,
+          timestamp: Date.now()
+        };
+      }
+    }
+    
+    if (articles.length === 0) {
+      return res.status(200).json({ 
+        response: "I'm currently unable to access the latest auto finance news. Please try again in a moment." 
+      });
+    }
+    
+    // Create embeddings from article titles and summaries
+    const embedResponses = await Promise.all(articles.map((a: any) =>
+      openai.embeddings.create({
+        model: 'text-embedding-3-small',
+        input: `${a.title}: ${a.aiSummary || a.summary}`
+      })
+    ));
+    
+    const vecs = embedResponses.map(r => r.data[0].embedding);
+    const qv = (await openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: `${a.title}: ${a.ragSummary}`
-    })
-  ));
-  
-  const vecs = embedResponses.map(r => r.data[0].embedding);
-  const qv = (await openai.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: question
-  })).data[0].embedding;
+      input: question
+    })).data[0].embedding;
+    
+    interface ScoredArticle { score: number; art: any; }
+    
+    const scoredArticles = articles.map((a: any, i: number) => ({
+      score: cosine(vecs[i], qv),
+      art: a
+    })).sort((x: ScoredArticle, y: ScoredArticle) => y.score - x.score);
+    
+    // Use top 3 most relevant articles for context
+    const topArticles = scoredArticles.slice(0, 3).map((x: ScoredArticle) => x.art);
+    
+    const prompt = `You are an expert auto finance industry analyst and advisor with deep knowledge of automotive lending, market trends, and regulatory developments.
 
-  interface Article { title: string; summary: string; }
-  interface EnhancedArticle extends Article { ragSummary: string; }
-  interface ScoredArticle { score: number; art: EnhancedArticle; }
-  
-  const scoredArticles = articleSummaries.map((a: EnhancedArticle, i: number) => ({
-    score: cosine(vecs[i], qv),
-    art: a
-  })).sort((x: ScoredArticle, y: ScoredArticle) => y.score - x.score);
-
-  // Use top 3 most relevant articles for context
-  const topArticles = scoredArticles.slice(0, 3).map((x: ScoredArticle) => x.art);
-
-  const prompt = `You are an auto finance industry assistant with access to current market data and analysis.
-
-KNOWLEDGE BASE (Retrieved Articles):
+CURRENT MARKET INTELLIGENCE (Live Auto Finance News):
 ${topArticles.map((a, i) => `
-Article ${i + 1}: ${a.title}
-Content: ${a.ragSummary}
+[${i + 1}] ${a.title}
+• Source: ${a.source || 'News Source'} | ${a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : 'Recent'}
+• Summary: ${a.aiSummary || a.summary}
+• Link: ${a.url}
 `).join('\n')}
 
-INSTRUCTIONS:
-- Answer ONLY questions about auto finance, automotive lending, car loans, industry trends, or the provided articles
-- Base your responses primarily on the retrieved article content above
-- If the question is not related to auto finance or the articles, politely decline and redirect to auto finance topics
-- Provide specific data points and insights from the articles when available
-- If the retrieved articles don't contain enough information, acknowledge this limitation
+YOUR ROLE & CAPABILITIES:
+- Provide expert analysis on auto finance topics including: lending rates, delinquency trends, market conditions, regulatory changes, subprime lending, EV financing, and industry forecasts
+- Interpret current news in the context of broader industry trends
+- Offer actionable insights for finance professionals, dealers, and lenders
+- Explain complex financial concepts in clear, professional language
+
+RESPONSE GUIDELINES:
+1. START with a direct answer to the user's question
+2. CITE specific articles using [1], [2], etc. when referencing news
+3. PROVIDE context beyond the articles when relevant to give comprehensive answers
+4. INCLUDE specific data points, percentages, and figures when available
+5. SUGGEST related topics or follow-up questions that might be helpful
+6. For unrelated questions: "I specialize in auto finance topics. I'd be happy to discuss [suggest relevant auto finance topic instead]."
+
+TONE: Professional yet approachable, like a knowledgeable colleague sharing insights
 
 USER QUESTION: ${question}
 
 RESPONSE:`;
-
-  const chat = await openai.chat.completions.create({
-    model: 'gpt-4.1',
-    messages: [{ role: 'user', content: prompt }]
-  });
-
-  res.status(200).json({ response: chat.choices[0].message.content });
+    
+    const chat = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.5, // Lower for more consistent, professional responses
+      max_tokens: 600 // Slightly more space for comprehensive answers
+    });
+    
+    res.status(200).json({ response: chat.choices[0].message.content });
+    
+  } catch (error) {
+    console.error('Chat API error:', error);
+    res.status(500).json({ 
+      response: "I apologize, but I'm having trouble accessing the information right now. Please try again later." 
+    });
   }
+}

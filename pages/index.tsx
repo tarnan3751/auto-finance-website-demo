@@ -1,34 +1,57 @@
-import fs from 'fs';
-import path from 'path';
 import {useEffect,useState} from 'react';
 import ArticleCard from '@components/ArticleCard';
 import ChatBot from '@components/ChatBot';
+import ChatWidget from '@components/ChatWidget';
 import LoadingSpinner from '@components/LoadingSpinner';
 
-export async function getStaticProps(){
-  const filePath=path.join(process.cwd(),'data','articles.json');
-  const json=fs.readFileSync(filePath,'utf8');
-  return {props:{articles:JSON.parse(json)}};
-}
-
-export default function Home({articles}:{articles:any[]}){
-  const [sorted,setSorted]=useState(articles);
+export default function Home(){
+  const [sorted,setSorted]=useState<any[]>([]);
   const [loading,setLoading]=useState(true);
+  const [newsLoading,setNewsLoading]=useState(true);
   const [chatOpen, setChatOpen] = useState(false);
+  const [error,setError]=useState<string|null>(null);
   
   useEffect(()=>{
-    // First reorder articles, then generate AI summaries
-    fetch('/api/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({articles})})
-      .then(r=>r.json())
-      .then(async d=>{
-        let reorderedArticles = articles;
-        if (d.articles && Array.isArray(d.articles)) {
-          reorderedArticles = d.articles;
-        } else {
-          console.warn('Reorder API returned invalid data, using original articles');
+    // Fetch real news articles from NewsAPI
+    const fetchAndProcessArticles = async () => {
+      try {
+        setNewsLoading(true);
+        setError(null);
+        
+        // Fetch news articles
+        const newsResponse = await fetch('/api/news');
+        const newsData = await newsResponse.json();
+        
+        if (!newsResponse.ok) {
+          throw new Error(newsData.message || 'Failed to fetch news');
         }
         
-        // Generate AI summaries for the reordered articles
+        const articles = newsData.articles;
+        
+        if (!articles || articles.length === 0) {
+          setError('No articles found. Please try again later.');
+          setNewsLoading(false);
+          setLoading(false);
+          return;
+        }
+        
+        setNewsLoading(false);
+        
+        // Reorder articles using AI
+        const reorderResponse = await fetch('/api/reorder', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ articles })
+        });
+        
+        const reorderData = await reorderResponse.json();
+        let reorderedArticles = articles;
+        
+        if (reorderData.articles && Array.isArray(reorderData.articles)) {
+          reorderedArticles = reorderData.articles;
+        }
+        
+        // Generate AI summaries
         try {
           const summaryResponse = await fetch('/api/summarize', {
             method: 'POST',
@@ -48,13 +71,16 @@ export default function Home({articles}:{articles:any[]}){
         }
         
         setLoading(false);
-      })
-      .catch(err => {
-        console.error('Reorder API failed:', err);
-        setSorted(articles);
+      } catch (err) {
+        console.error('Failed to fetch articles:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load articles');
+        setNewsLoading(false);
         setLoading(false);
-      });
-  },[articles]);
+      }
+    };
+    
+    fetchAndProcessArticles();
+  },[]);
   
   return (
     <div className="min-h-screen bg-gray-900 relative overflow-hidden">
@@ -92,21 +118,9 @@ export default function Home({articles}:{articles:any[]}){
                   <a href="#insights" className="text-sm text-gray-300 hover:text-white transition-colors">Insights</a>
                 </nav>
                 
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => setChatOpen(true)}
-                    className="btn btn-primary flex items-center gap-2 text-sm"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
-                    Ask AI
-                  </button>
-                  
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-green-400 font-medium">Live</span>
-                  </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-green-400 font-medium">Live</span>
                 </div>
               </div>
             </div>
@@ -140,7 +154,7 @@ export default function Home({articles}:{articles:any[]}){
                   <div className="text-sm text-gray-500 mt-1">Monitoring</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white">500+</div>
+                  <div className="text-3xl md:text-4xl font-bold text-white">150k+</div>
                   <div className="text-sm text-gray-500 mt-1">Sources</div>
                 </div>
                 <div className="text-center">
@@ -158,15 +172,20 @@ export default function Home({articles}:{articles:any[]}){
           <div className="flex items-center justify-between mb-10">
             <div>
               <h2 className="text-3xl font-bold text-white font-space">Top Stories</h2>
-              <p className="text-gray-400 mt-1">Ranked by relevance to industry professionals</p>
+              <p className="text-gray-400 mt-1">
+                {newsLoading ? 'Fetching latest news...' : 'Live news ranked by relevance to industry professionals'}
+              </p>
             </div>
             
             <div className="flex items-center gap-4">
-              <button className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2">
+              <button 
+                onClick={() => window.location.reload()}
+                className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Sort by date
+                Refresh
               </button>
               <button className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,14 +196,31 @@ export default function Home({articles}:{articles:any[]}){
             </div>
           </div>
 
-          {loading ? (
+          {error ? (
+            <div className="glass rounded-2xl p-8 text-center">
+              <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="text-xl font-semibold text-white mb-2">Unable to Load Articles</h3>
+              <p className="text-gray-400 mb-4">{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="btn btn-primary"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : loading ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <LoadingSpinner size="lg" text="AI is analyzing articles and generating detailed summaries..." />
+              <LoadingSpinner 
+                size="lg" 
+                text={newsLoading ? "Fetching live news from 150,000+ sources..." : "AI is analyzing articles and generating detailed summaries..."} 
+              />
               <div className="mt-8 grid gap-6 w-full">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="glass rounded-2xl p-6 animate-pulse">
                     <div className="flex gap-6">
-                      <div className="w-48 h-32 bg-gray-800 rounded-xl skeleton"></div>
+                      <div className="w-48 h-36 bg-gray-800 rounded-xl skeleton"></div>
                       <div className="flex-1">
                         <div className="h-6 bg-gray-800 rounded w-3/4 mb-3 skeleton"></div>
                         <div className="h-4 bg-gray-800 rounded w-full mb-2 skeleton"></div>
@@ -264,6 +300,9 @@ export default function Home({articles}:{articles:any[]}){
 
       {/* Chat Interface */}
       {chatOpen && <ChatBot onClose={() => setChatOpen(false)} />}
+      
+      {/* Floating Chat Widget */}
+      <ChatWidget onOpenChat={() => setChatOpen(true)} />
     </div>
   );
 }

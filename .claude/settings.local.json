@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm run dev:*)",
       "WebFetch(domain:localhost)",
-      "Bash(npx kill-port:*)"
+      "Bash(npx kill-port:*)",
+      "WebFetch(domain:newsapi.org)",
+      "Bash(curl:*)",
+      "Bash(start http://localhost:3000)"
     ],
     "deny": []
   }
