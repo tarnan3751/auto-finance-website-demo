@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useState,useCallback} from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import ArticleCard from '@components/ArticleCard';
@@ -20,6 +20,18 @@ export default function Home(){
     country: 'all',
     sourceQuality: 'all'
   });
+
+  const handleFilterChange = useCallback((newFilters: FilterOptions) => {
+    setFilters(newFilters);
+  }, []);
+
+  const handleChatOpen = useCallback(() => {
+    setChatOpen(true);
+  }, []);
+
+  const handleChatClose = useCallback(() => {
+    setChatOpen(false);
+  }, []);
   
   useEffect(()=>{
     // Fetch real news articles from NewsAPI
@@ -140,6 +152,14 @@ export default function Home(){
       <Head>
         <title>ExeterHub - AI-Powered Auto Finance Intelligence</title>
         <meta name="description" content="Real-time auto finance news and insights powered by AI. Stay ahead with market trends, industry analysis, and intelligent summaries." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta property="og:title" content="ExeterHub - AI-Powered Auto Finance Intelligence" />
+        <meta property="og:description" content="Real-time auto finance news and insights powered by AI. Stay ahead with market trends, industry analysis, and intelligent summaries." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="ExeterHub - AI-Powered Auto Finance Intelligence" />
+        <meta name="twitter:description" content="Real-time auto finance news and insights powered by AI. Stay ahead with market trends, industry analysis, and intelligent summaries." />
+        <meta name="keywords" content="auto finance, automotive finance, car loans, vehicle lending, AI news, financial intelligence, market analysis" />
         <link rel="icon" href="/images/exeter_logo.png" />
       </Head>
       
@@ -239,6 +259,7 @@ export default function Home(){
               <button 
                 onClick={() => window.location.reload()}
                 className="flex items-center gap-2 px-4 py-2 glass rounded-lg border border-gray-700 hover:border-lime-500 text-gray-300 hover:text-white transition-all"
+                aria-label="Refresh articles"
               >
                 <svg className="w-5 h-5 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -247,7 +268,7 @@ export default function Home(){
               </button>
               <FilterDropdown
                 filters={filters}
-                onFilterChange={setFilters}
+                onFilterChange={handleFilterChange}
                 isLoading={newsLoading}
               />
             </div>
@@ -294,7 +315,7 @@ export default function Home(){
             <ErrorBoundary>
               <div className="grid gap-6">
                 {sorted.map((a,i)=>(
-                  <ErrorBoundary key={i}>
+                  <ErrorBoundary key={a.url || `article-${i}`}>
                     <ArticleCard rank={i+1} {...a}/>
                   </ErrorBoundary>
                 ))}
@@ -360,10 +381,10 @@ export default function Home(){
       </div>
 
       {/* Chat Interface */}
-      {chatOpen && <ChatBot onClose={() => setChatOpen(false)} currentArticles={sorted} />}
+      {chatOpen && <ChatBot onClose={handleChatClose} currentArticles={sorted} />}
       
       {/* Floating Chat Widget */}
-      <ChatWidget onOpenChat={() => setChatOpen(true)} />
+      <ChatWidget onOpenChat={handleChatOpen} />
     </div>
     </>
   );

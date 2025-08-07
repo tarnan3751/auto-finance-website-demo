@@ -128,14 +128,15 @@ export default function FilterDropdown({ filters, onFilterChange, isLoading }: F
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent transition-all"
               >
                 <option value="all">International</option>
-                <option value="us">United States</option>
-                <option value="gb">United Kingdom</option>
-                <option value="ca">Canada</option>
                 <option value="au">Australia</option>
-                <option value="de">Germany</option>
-                <option value="fr">France</option>
-                <option value="jp">Japan</option>
+                <option value="ca">Canada</option>
                 <option value="cn">China</option>
+                <option value="fr">France</option>
+                <option value="de">Germany</option>
+                <option value="in">India</option>
+                <option value="jp">Japan</option>
+                <option value="gb">United Kingdom</option>
+                <option value="us">United States</option>
               </select>
             </div>
 

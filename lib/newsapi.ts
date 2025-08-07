@@ -190,6 +190,40 @@ const getDomainsByCountry = (country: string): string => {
         'xcar.com.cn', 'cheshi.com', 'cheyun.com'
       ].join(',');
       
+    case 'in':
+      return [
+        // Major English newspapers
+        'timesofindia.indiatimes.com', 'economictimes.indiatimes.com', 'hindustantimes.com',
+        'indianexpress.com', 'thehindu.com', 'deccanherald.com', 'dnaindia.com',
+        'business-standard.com', 'livemint.com', 'financialexpress.com', 'moneycontrol.com',
+        'ndtv.com', 'india.com', 'news18.com', 'republic.world', 'zeenews.india.com',
+        
+        // Major Hindi newspapers
+        'navbharattimes.indiatimes.com', 'amarujala.com', 'jagran.com', 'bhaskar.com',
+        'patrika.com', 'livehindustan.com', 'prabhatkhabar.com', 'rajasthanpatrika.com',
+        'punjabkesari.in', 'hindi.news18.com', 'aajtak.in', 'zeenews.india.com',
+        
+        // Business and financial news
+        'businesstoday.in', 'cnbctv18.com', 'bloombergquint.com', 'thequint.com',
+        'inc42.com', 'entrackr.com', 'yourstory.com', 'vccircle.com',
+        'forbesindia.com', 'exchange4media.com', 'brand-equity.com',
+        
+        // Auto industry specific
+        'autocarindia.com', 'cardekho.com', 'carwale.com', 'carandbike.com',
+        'rushlane.com', 'motorbeam.com', 'gaadiwaadi.com', 'indianautosblog.com',
+        'autocar.co.uk', 'overdrive.in', 'zigwheels.com', 'team-bhp.com',
+        'autoportal.com', 'cartoq.com', 'motoroids.com', 'autoheadlines.com',
+        
+        // Regional and local sources
+        'hindustantimes.com', 'mumbaimirror.com', 'tribuneindia.com', 'thestatesman.com',
+        'asianage.com', 'newindianexpress.com', 'greatandhra.com', 'sakshi.com',
+        'eenadu.net', 'dinamalar.com', 'mathrubhumi.com', 'malayalamanorama.com',
+        
+        // Technology and startup focused
+        'medianama.com', 'nextbigwhat.com', 'factordaily.com', 'trak.in',
+        'indianweb2.com', 'dazeinfo.com', 'pluginindia.com', 'indianstartupnews.com'
+      ].join(',');
+      
     default:
       return '';
   }
@@ -236,6 +270,12 @@ export async function fetchAutoFinanceNews(
           // Chinese query - comprehensive terms
           query = '((汽车 OR 车 OR 轿车 OR 车辆 OR 电动车 OR 新能源 OR 混动) AND (贷款 OR 金融 OR 融资 OR 租赁 OR 销售 OR 市场 OR 产业 OR 商业 OR 经销商)) OR (比亚迪 OR BYD OR 蔚来 OR NIO OR 小鹏 OR 理想 OR 吉利 OR 长城 OR 长安 OR 上汽 OR 广汽) NOT (体育 OR 娱乐 OR 游戏 OR 明星)';
           console.log('[fetchAutoFinanceNews] Using China-specific comprehensive query');
+          break;
+          
+        case 'in':
+          // Optimized Hindi/English query for India - under 500 chars
+          query = '((कार OR गाड़ी OR वाहन OR auto OR car OR vehicle) AND (लोन OR वित्त OR loan OR finance OR EMI OR market OR sales)) OR (मारुति OR टाटा OR महिंद्रा OR Maruti OR Tata OR Mahindra OR Bajaj OR Hero) NOT (खेल OR sports OR cricket OR मनोरंजन OR entertainment OR bollywood)';
+          console.log('[fetchAutoFinanceNews] Using India-specific optimized query (under 500 chars)');
           break;
           
         case 'us':
@@ -313,6 +353,10 @@ export async function fetchAutoFinanceNews(
           break;
         case 'fr':
           language = 'fr';
+          break;
+        case 'in':
+          // For India, don't specify language to get both Hindi and English content
+          language = '';
           break;
         default:
           language = 'en';
@@ -571,6 +615,21 @@ export async function fetchAutoFinanceNews(
             '首付', '月付', '年化', '征信', '信用', '评级', '担保'
           ];
           
+        case 'in':
+          return [...baseTerms,
+            // Hindi finance terms
+            'लोन', 'ऋण', 'कर्ज', 'वित्त', 'फाइनेंस', 'वित्तपोषण', 'फंडिंग',
+            'ब्याज', 'दर', 'ब्याज दर', 'किस्त', 'EMI', 'मासिक किस्त',
+            'भुगतान', 'पेमेंट', 'चुकाना', 'अदायगी', 'लीज', 'किराया',
+            'बैंक', 'बैंकिंग', 'वित्तीय', 'कर्ज', 'डिफॉल्ट', 'चूक',
+            'सिक्यूरिटी', 'गारंटी', 'जमानत', 'रिस्क', 'जोखिम', 'बीमा',
+            'रिफाइनेंसिंग', 'एप्रूवल', 'अनुमोदन', 'आवेदन', 'योग्यता',
+            'डाउन पेमेंट', 'अग्रिम', 'सब्सिडी', 'क्रेडिट', 'CIBIL', 'स्कोर',
+            // Mixed Hindi-English terms commonly used
+            'कार लोन', 'ऑटो लोन', 'व्हीकल लोन', 'बाइक लोन', 'टू व्हीलर लोन',
+            'कमर्शियल व्हीकल', 'इंश्योरेंस', 'रजिस्ट्रेशन', 'RTO', 'RC'
+          ];
+          
         default:
           return baseTerms;
       }
@@ -629,6 +688,21 @@ export async function fetchAutoFinanceNews(
             '投资', '股票', '股份', '估值', '收购', '并购', '兼并',
             '合作', '伙伴', '扩张', '战略', '创新', '技术', '科技',
             '创业', '初创', '融资', '资本', '上市', 'IPO'
+          ];
+          
+        case 'in':
+          return [...baseTerms,
+            // Hindi business terms
+            'बिक्री', 'सेल्स', 'बाजार', 'मार्केट', 'उद्योग', 'इंडस्ट्री', 'व्यापार', 'बिज़नेस',
+            'आय', 'कमाई', 'रेवेन्यू', 'मुनाफा', 'लाभ', 'प्रॉफिट', 'वृद्धि', 'ग्रोथ',
+            'मांग', 'डिमांड', 'आपूर्ति', 'सप्लाई', 'उत्पादन', 'प्रोडक्शन', 'निर्माण',
+            'तिमाही', 'क्वार्टर', 'वार्षिक', 'सालाना', 'पूर्वानुमान', 'फोरकास्ट',
+            'विश्लेषण', 'एनालिसिस', 'रिपोर्ट', 'निवेश', 'इन्वेस्टमेंट', 'शेयर',
+            'स्टॉक', 'वैल्यूएशन', 'अधिग्रहण', 'एक्विज़िशन', 'विलय', 'मर्जर',
+            'साझेदारी', 'पार्टनरशिप', 'विस्तार', 'एक्सपेंशन', 'रणनीति', 'स्ट्रैटेजी',
+            'नवाचार', 'इनोवेशन', 'तकनीक', 'टेक्नोलॉजी', 'स्टार्टअप', 'कैपिटल',
+            // Common mixed terms
+            'IPO', 'BSE', 'NSE', 'SEBI', 'FDI', 'GDP', 'GST', 'MSME'
           ];
           
         default:
@@ -721,6 +795,32 @@ export async function fetchAutoFinanceNews(
             '造车新势力', '传统车企'
           ];
           
+        case 'in':
+          return [...baseTerms, ...compoundTerms,
+            // Hindi auto terms
+            'ऑटो', 'कार', 'गाड़ी', 'वाहन', 'मोटर', 'गाड़ी', 'सवारी',
+            'ऑटोमोबाइल', 'मोटरसाइकिल', 'बाइक', 'स्कूटर', 'दोपहिया',
+            'चारपहिया', 'ट्रक', 'बस', 'लॉरी', 'टेम्पो', 'ऑटो रिक्शा',
+            // Vehicle types in Hindi
+            'सेडान', 'हैचबैक', 'SUV', 'MUV', 'कॉम्पैक्ट', 'लग्जरी',
+            'इलेक्ट्रिक', 'हाइब्रिड', 'पेट्रोल', 'डीजल', 'CNG', 'LPG',
+            // Dealers and industry
+            'डीलर', 'डीलरशिप', 'शोरूम', 'गैराज', 'सर्विस सेंटर',
+            'निर्माता', 'मेकर', 'कंपनी', 'ब्रांड', 'मॉडल',
+            // Vehicle conditions and services
+            'नई', 'नया', 'पुराना', 'सेकंड हैंड', 'प्री ओन्ड', 'यूज्ड',
+            'सर्टिफाइड', 'वारंटी', 'गारंटी', 'सर्विसिंग', 'मेंटेनेंस',
+            'स्पेयर पार्ट्स', 'एक्सेसरीज', 'टायर', 'बैटरी', 'इंजन',
+            // Financial terms specific to auto
+            'कार लोन', 'बाइक लोन', 'ऑटो लोन', 'व्हीकल फाइनेंस',
+            'टू व्हीलर लोन', 'कमर्शियल व्हीकल लोन', 'रेंटल', 'लीज',
+            'इंश्योरेंस', 'बीमा', 'रजिस्ट्रेशन', 'RC', 'PUC', 'RTO',
+            'फास्टैग', 'नंबर प्लेट', 'चालान', 'लाइसेंस', 'ड्राइविंग',
+            // Industry and market terms
+            'ऑटो इंडस्ट्री', 'वाहन उद्योग', 'कार मार्केट', 'ऑटो सेक्टर',
+            'सेल्स', 'बिक्री', 'लॉन्च', 'फेसलिफ्ट', 'अपडेट'
+          ];
+          
         default:
           return [...baseTerms, ...compoundTerms];
       }
@@ -757,6 +857,25 @@ export async function fetchAutoFinanceNews(
             '吉利', 'geely', '长城', 'great wall', '长安', 'changan', '上汽', 'saic',
             '广汽', 'gac', '一汽', 'faw', '东风', 'dongfeng', '奇瑞', 'chery',
             '哈弗', 'haval', '红旗', 'hongqi', '五菱', 'wuling', '宝骏', 'baojun'
+          ];
+          
+        case 'in':
+          return [...globalBrands,
+            // Major Indian auto brands
+            'maruti', 'maruti suzuki', 'suzuki', 'tata', 'tata motors', 'mahindra',
+            'bajaj', 'bajaj auto', 'hero', 'hero motocorp', 'tvs', 'tvs motor',
+            'ashok leyland', 'eicher', 'force motors', 'mahindra mahindra',
+            'royal enfield', 'indian motorcycles', 'ola electric', 'ather',
+            // Hindi brand names
+            'मारुति', 'टाटा', 'महिंद्रा', 'बजाज', 'हीरो', 'टीवीएस',
+            'अशोक लीलैंड', 'आइचर', 'रॉयल एनफील्ड', 'ओला', 'अदर',
+            // Luxury and international brands popular in India
+            'mercedes benz', 'bmw', 'audi', 'jaguar', 'land rover', 'volvo',
+            'skoda', 'volkswagen', 'renault', 'nissan', 'ford', 'chevrolet',
+            'fiat', 'jeep', 'mini cooper', 'porsche', 'lamborghini', 'ferrari',
+            // Commercial vehicle brands
+            'bharat benz', 'man', 'scania', 'volvo trucks', 'tata ace',
+            'mahindra bolero', 'mahindra scorpio', 'maruti swift', 'hyundai creta'
           ];
           
         default:
@@ -841,6 +960,25 @@ export async function fetchAutoFinanceNews(
             '时装', '时尚', '秀场'
           ];
           
+        case 'in':
+          return [...baseExclusions,
+            // Hindi sports terms
+            'फुटबॉल', 'क्रिकेट', 'हॉकी', 'टेनिस', 'बैडमिंटन', 'कबड्डी',
+            'खिलाड़ी', 'टीम', 'मैच', 'टूर्नामेंट', 'IPL', 'ISL', 'PKL',
+            // Entertainment in Hindi
+            'फिल्म', 'सिनेमा', 'बॉलीवूड', 'टॉलीवूड', 'अभिनेता', 'अभिनेत्री',
+            'संगीत', 'गीत', 'नाचना', 'डांस', 'टीवी', 'सीरियल', 'शो',
+            // Gaming and technology (non-auto)
+            'गेम', 'गेमिंग', 'मोबाइल गेम', 'PUBG', 'फ्री फायर', 'कॉल ऑफ ड्यूटी',
+            // Food and lifestyle
+            'खाना', 'रेसिपी', 'रेस्टोरेंट', 'व्यंजन', 'स्वादिष्ट', 'पकाना',
+            'फैशन', 'कपड़े', 'ड्रेस', 'शादी', 'त्योहार',
+            // Politics (when not related to policy affecting auto industry)
+            'चुनाव', 'राजनीति', 'पार्टी', 'नेता', 'मंत्री',
+            // Mixed terms commonly used
+            'bollywood', 'cricket', 'IPL', 'entertainment', 'celebrity', 'actor', 'actress'
+          ];
+          
         default:
           return baseExclusions;
       }
@@ -887,6 +1025,25 @@ export async function fetchAutoFinanceNews(
             '汽车消费贷款', '新车贷款', '二手车贷款', '融资租赁',
             '以租代购', '汽车分期', '零首付', '低首付', '贴息贷款',
             '新能源补贴', '电动车贷款', '绿色金融'
+          ];
+          
+        case 'in':
+          return [...basePhrases,
+            // Hindi auto finance phrases
+            'कार लोन दर', 'ऑटो लोन रेट', 'गाड़ी की किस्त', 'वाहन वित्त',
+            'बाइक लोन', 'टू व्हीलर फाइनेंसिंग', 'कमर्शियल व्हीकल लोन',
+            'ऑटो लोन EMI', 'कार लोन एप्रूवल', 'व्हीकल इंश्योरेंस',
+            'जीरो डाउन पेमेंट', 'कम ब्याज दर', 'फास्ट लोन एप्रूवल',
+            'प्री अप्रूव्ड लोन', 'इंस्टेंट कार लोन', 'ऑनलाइन लोन',
+            'बैंक ऑफ इंडिया कार लोन', 'SBI ऑटो लोन', 'HDFC कार लोन',
+            'ICICI व्हीकल लोन', 'एक्सिस बैंक लोन', 'बजाज फाइनेंस',
+            // Government schemes and subsidies
+            'FAME स्कीम', 'इलेक्ट्रिक व्हीकल सब्सिडी', 'PLI स्कीम',
+            'वाहन स्क्रैपेज पॉलिसी', 'BS6 नॉर्म्स', 'GST रेट',
+            'रोड टैक्स', 'RTO चार्जेस', 'इंश्योरेंस प्रीमियम',
+            // Mixed commonly used phrases
+            'car loan interest rate', 'vehicle finance company', 'auto loan eligibility',
+            'used car financing', 'commercial vehicle finance', 'two wheeler loan EMI'
           ];
           
         default:

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 interface Article {
   title: string;
@@ -85,7 +85,7 @@ export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
   }, []);
 
   // Save current session to history when closing or switching
-  const saveCurrentSession = () => {
+  const saveCurrentSession = useCallback(() => {
     if (messages.length > 1) { // Only save if there's more than the welcome message
       const userMessages = messages.filter(m => m.isUser);
       if (userMessages.length > 0) {
@@ -102,7 +102,7 @@ export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
         localStorage.setItem('autoFinanceChatHistory', JSON.stringify(updatedHistory));
       }
     }
-  };
+  }, [messages, chatHistory, currentSessionId]);
 
   const ask = async () => {
     if (!question.trim() || loading) return;
