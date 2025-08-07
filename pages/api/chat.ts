@@ -3,8 +3,17 @@ import {OpenAI} from 'openai';
 const openai=new OpenAI({apiKey:process.env.OPENAI_API_KEY});
 
 // Simple in-memory cache for articles
+interface Article {
+  title: string;
+  summary?: string;
+  aiSummary?: string;
+  source?: string;
+  publishedAt?: string;
+  url: string;
+}
+
 let articlesCache: {
-  data: any[];
+  data: Article[];
   timestamp: number;
 } | null = null;
 
@@ -58,7 +67,7 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
     }
     
     // Create embeddings from article titles and summaries
-    const embedResponses = await Promise.all(articles.map((a: any) =>
+    const embedResponses = await Promise.all(articles.map((a: Article) =>
       openai.embeddings.create({
         model: 'text-embedding-3-small',
         input: `${a.title}: ${a.aiSummary || a.summary}`
@@ -71,9 +80,9 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
       input: question
     })).data[0].embedding;
     
-    interface ScoredArticle { score: number; art: any; }
+    interface ScoredArticle { score: number; art: Article; }
     
-    const scoredArticles = articles.map((a: any, i: number) => ({
+    const scoredArticles = articles.map((a: Article, i: number) => ({
       score: cosine(vecs[i], qv),
       art: a
     })).sort((x: ScoredArticle, y: ScoredArticle) => y.score - x.score);
@@ -84,7 +93,7 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
     const prompt = `You are an expert auto finance industry analyst and advisor with deep knowledge of automotive lending, market trends, and regulatory developments.
 
 CURRENT MARKET INTELLIGENCE (Live Auto Finance News):
-${topArticles.map((a: any, i: number) => `
+${topArticles.map((a: Article, i: number) => `
 [${i + 1}] ${a.title}
 • Source: ${a.source || 'News Source'} | ${a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : 'Recent'}
 • Summary: ${a.aiSummary || a.summary}

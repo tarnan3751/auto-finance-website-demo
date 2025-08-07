@@ -59,24 +59,141 @@ export interface FilterOptions {
   sourceQuality?: string;
 }
 
-// Auto finance related keywords for better relevance
-const AUTO_FINANCE_KEYWORDS = [
-  'auto finance',
-  'car loans',
-  'auto lending',
-  'vehicle financing',
-  'automotive credit',
-  'auto loan rates',
-  'car financing',
-  'subprime auto',
-  'auto delinquency',
-  'vehicle leasing',
-  'auto loan default',
-  'car loan fraud',
-  'auto finance industry',
-  'automotive financial services',
-  'vehicle loan'
-];
+// Comprehensive domain lists by country
+const getDomainsByCountry = (country: string): string => {
+  switch (country) {
+    case 'us':
+      return [
+        // Major financial news
+        'wsj.com', 'bloomberg.com', 'cnbc.com', 'reuters.com', 'marketwatch.com',
+        'businessinsider.com', 'forbes.com', 'fortune.com', 'barrons.com', 'investopedia.com',
+        // Major newspapers
+        'nytimes.com', 'washingtonpost.com', 'usatoday.com', 'latimes.com', 'chicagotribune.com',
+        // Auto industry specific
+        'autonews.com', 'automotivenews.com', 'wardsauto.com', 'greencarreports.com',
+        'thetruthaboutcars.com', 'carscoops.com', 'motor1.com', 'motortrend.com',
+        'caranddriver.com', 'roadandtrack.com', 'autoblog.com', 'jalopnik.com',
+        'electrek.co', 'insideevs.com', 'teslarati.com', 'cleantechnica.com',
+        // Finance industry
+        'americanbanker.com', 'autofinancenews.net', 'autoremarketing.com'
+      ].join(',');
+      
+    case 'gb':
+      return [
+        // Major news sources
+        'bbc.co.uk', 'bbc.com', 'theguardian.com', 'telegraph.co.uk', 'ft.com',
+        'reuters.co.uk', 'independent.co.uk', 'thetimes.co.uk', 'dailymail.co.uk',
+        'standard.co.uk', 'mirror.co.uk', 'thesun.co.uk',
+        // Business news
+        'cityam.com', 'thisismoney.co.uk', 'proactiveinvestors.co.uk', 'businessinsider.co.uk',
+        // Auto specific
+        'autoexpress.co.uk', 'autocar.co.uk', 'whatcar.com', 'carmagazine.co.uk',
+        'evo.co.uk', 'topgear.com', 'pistonheads.com', 'honestjohn.co.uk',
+        'parkers.co.uk', 'carwow.co.uk', 'drivingelectric.com', 'motoringresearch.com',
+        'am-online.com', 'fleetnews.co.uk', 'carmag.co.uk'
+      ].join(',');
+      
+    case 'ca':
+      return [
+        // Major news sources
+        'cbc.ca', 'globalnews.ca', 'ctvnews.ca', 'financialpost.com',
+        'theglobeandmail.com', 'nationalpost.com', 'thestar.com', 'montrealgazette.com',
+        'vancouversun.com', 'ottawacitizen.com', 'torontosun.com', 'calgaryherald.com',
+        // Business news
+        'bnnbloomberg.ca', 'canadianbusiness.com', 'moneysense.ca',
+        // Auto specific
+        'driving.ca', 'auto123.com', 'autotrader.ca', 'wheels.ca',
+        'canadianautodealer.ca', 'autosphere.ca', 'electric-vehiclenews.com',
+        'fleetcarma.com', 'caamagazine.ca', 'autojournal.ca'
+      ].join(',');
+      
+    case 'au':
+      return [
+        // Major news sources
+        'smh.com.au', 'theaustralian.com.au', 'afr.com', 'news.com.au',
+        'abc.net.au', 'theage.com.au', 'dailytelegraph.com.au', 'heraldsun.com.au',
+        'couriermail.com.au', 'adelaidenow.com.au', 'perthnow.com.au',
+        // Business news
+        'businessinsider.com.au', 'stockhead.com.au', 'theurbandeveloper.com',
+        // Auto specific
+        'drive.com.au', 'carsales.com.au', 'caradvice.com.au', 'motoring.com.au',
+        'whichcar.com.au', 'carsguide.com.au', 'goauto.com.au', 'autotalk.com.au',
+        'evcentral.com.au', 'thedriven.io', 'carexpert.com.au', 'streetmachine.com.au',
+        'motorex.com.au', 'zoommag.com.au'
+      ].join(',');
+      
+    case 'de':
+      return [
+        // Major news sources
+        'bild.de', 'faz.net', 'welt.de', 'zeit.de', 'sueddeutsche.de',
+        'spiegel.de', 'stern.de', 'focus.de', 'tagesspiegel.de', 'handelsblatt.com',
+        // Business news
+        'manager-magazin.de', 'wiwo.de', 'capital.de', 'boersen-zeitung.de',
+        'finance-magazin.de', 'rp-online.de',
+        // Auto specific
+        'auto-motor-und-sport.de', 'autobild.de', 'autozeitung.de', 'automobilwoche.de',
+        'adac.de', 'motor-talk.de', 'autoscout24.de', 'mobile.de',
+        'elektroauto-news.net', 'efahrer.com', 'auto-service.de', 'kfz-betrieb.de',
+        'autohaus.de', 'firmenauto.de', 'atz-magazine.com'
+      ].join(',');
+      
+    case 'fr':
+      return [
+        // Major news sources
+        'lemonde.fr', 'lefigaro.fr', 'liberation.fr', 'lexpress.fr', 'lepoint.fr',
+        'lobs.com', 'france24.com', 'bfmtv.com', '20minutes.fr', 'leparisien.fr',
+        // Business news
+        'lesechos.fr', 'latribune.fr', 'challenges.fr', 'capital.fr',
+        'usinenouvelle.com', 'boursorama.com',
+        // Auto specific
+        'largus.fr', 'caradisiac.com', 'automobile-magazine.fr', 'turbo.fr',
+        'autoplus.fr', 'auto-moto.com', 'automobile-propre.com', 'avem.fr',
+        'lacentrale.fr', 'autosphere.fr', 'elite-auto.fr', 'motorlegend.com',
+        'sportauto.fr', 'leblogauto.com'
+      ].join(',');
+      
+    case 'jp':
+      return [
+        // Major newspapers
+        'asahi.com', 'mainichi.jp', 'yomiuri.co.jp', 'sankei.com', 'nikkei.com',
+        'tokyo-np.co.jp', 'chunichi.co.jp', 'hokkaido-np.co.jp', 'kahoku.co.jp',
+        'nishinippon.co.jp', 'kyoto-np.co.jp',
+        // Business and financial news
+        'business.nikkei.com', 'toyokeizai.net', 'diamond.jp', 'newspicks.com',
+        'bloomberg.co.jp', 'reuters.com', 'forbesjapan.com', 'president.jp',
+        // Automotive specific
+        'response.jp', 'carview.yahoo.co.jp', 'car.watch.impress.co.jp', 'webcg.net',
+        'autocar.jp', 'motor-fan.jp', 'bestcarweb.jp', 'kuruma-news.jp',
+        'carsensor.net', 'goo-net.com', 'gazoo.com', 'dime.jp',
+        'clicccar.com', 'carme.jp', 'automesseweb.jp',
+        // News agencies and broadcasters
+        'nhk.or.jp', 'jiji.com', 'kyodo-news.jp', 'tv-asahi.co.jp',
+        'tbs.co.jp', 'ntv.co.jp', 'fujitv.co.jp',
+        // English language Japanese sources
+        'japantimes.co.jp', 'asia.nikkei.com', 'english.kyodonews.net',
+        'japantoday.com', 'japannews.yomiuri.co.jp', 'asahi.com',
+        'mainichi.jp'
+      ].join(',');
+      
+    case 'cn':
+      return [
+        // Major news sources
+        'chinadaily.com.cn', 'scmp.com', 'globaltimes.cn', 'shine.cn',
+        'ecns.cn', 'xinhuanet.com', 'peopledaily.com.cn', 'cgtn.com',
+        'china.org.cn', 'english.news.cn',
+        // Business and financial
+        'caixinglobal.com', 'yicaiglobal.com', '36kr.com', 'technode.com',
+        'kr-asia.com', 'jiemian.com', 'cls.cn', 'stcn.com',
+        // Auto specific
+        'carnewschina.com', 'chinaautoweb.com', 'gasgoo.com', 'd1ev.com',
+        'autoinfo.com.cn', 'autohome.com.cn', 'bitauto.com', 'pcauto.com.cn',
+        'xcar.com.cn', 'cheshi.com', 'cheyun.com'
+      ].join(',');
+      
+    default:
+      return '';
+  }
+};
 
 export async function fetchAutoFinanceNews(
   sortBy: 'relevancy' | 'popularity' | 'publishedAt' = 'relevancy',
@@ -91,31 +208,43 @@ export async function fetchAutoFinanceNews(
   }
 
   try {
-    // Build search query - adjust based on country/language
-    let query = '(auto OR automotive OR car OR vehicle OR "auto finance" OR "car loan" OR "auto industry" OR tesla OR ford OR toyota OR EV) NOT (NBA OR NFL OR sports OR entertainment OR celebrity)';
+    // Build balanced search query - more inclusive while still filtering obvious non-auto content
+    let query = '((auto OR automotive OR car OR vehicle OR "electric vehicle" OR EV OR SUV OR truck OR dealership) AND (finance OR loan OR sales OR market OR industry OR business OR manufacturer OR production OR dealer)) OR (Tesla OR Ford OR GM OR "General Motors" OR Toyota OR Volkswagen OR Honda OR Nissan OR Stellantis OR Hyundai OR BMW OR Mercedes) NOT (NBA OR NFL OR "video game" OR celebrity OR entertainment OR divorce)';
     
-    // Customize query for specific countries
+    // Customize query for specific countries with comprehensive terms
     if (filters?.country && filters.country !== 'all') {
       switch (filters.country) {
         case 'jp':
-          // Focus on Japanese automakers and market
-          query = '(toyota OR nissan OR honda OR mazda OR subaru OR mitsubishi OR suzuki OR lexus OR "japan auto" OR "japanese car" OR "auto industry") NOT (sports OR entertainment)';
-          console.log('[fetchAutoFinanceNews] Using Japan-specific query');
+          // Japanese query - comprehensive terms
+          query = '((自動車 OR 車 OR クルマ OR 乗用車 OR EV OR 電気自動車 OR ハイブリッド) AND (ローン OR 金融 OR 販売 OR 市場 OR 産業 OR ビジネス OR ディーラー OR リース)) OR (トヨタ OR ホンダ OR 日産 OR マツダ OR スバル OR 三菱 OR スズキ OR ダイハツ OR レクサス) NOT (スポーツ OR 芸能 OR ゲーム OR エンタメ)';
+          console.log('[fetchAutoFinanceNews] Using Japan-specific comprehensive query');
           break;
+          
         case 'de':
-          // Include German auto brands and terms
-          query = '(auto OR automotive OR car OR vehicle OR "elektroauto" OR BMW OR Mercedes OR Volkswagen OR VW OR Audi OR Porsche OR Opel OR "auto finance" OR "autokredit") NOT (sport OR unterhaltung)';
-          console.log('[fetchAutoFinanceNews] Using Germany-specific query');
+          // German query - comprehensive terms
+          query = '((Auto OR Automobil OR Fahrzeug OR PKW OR Kraftfahrzeug OR Elektroauto OR E-Auto OR Hybrid) AND (Kredit OR Finanzierung OR Leasing OR Verkauf OR Markt OR Industrie OR Geschäft OR Händler OR Autohaus)) OR (BMW OR Mercedes OR Volkswagen OR VW OR Audi OR Porsche OR Opel OR Ford OR Tesla) NOT (Sport OR Fußball OR Unterhaltung OR Spiel OR Promi)';
+          console.log('[fetchAutoFinanceNews] Using Germany-specific comprehensive query');
           break;
+          
         case 'fr':
-          // Include French auto brands and terms
-          query = '(auto OR automobile OR voiture OR véhicule OR Renault OR Peugeot OR Citroën OR Stellantis OR "crédit auto" OR "financement auto") NOT (sport OR divertissement)';
-          console.log('[fetchAutoFinanceNews] Using France-specific query');
+          // French query - comprehensive terms
+          query = '((automobile OR voiture OR véhicule OR auto OR électrique OR hybride) AND (crédit OR prêt OR financement OR leasing OR LOA OR LLD OR vente OR marché OR industrie OR concessionnaire)) OR (Renault OR Peugeot OR Citroën OR Stellantis OR Dacia OR Alpine) NOT (sport OR football OR divertissement OR jeu OR célébrité)';
+          console.log('[fetchAutoFinanceNews] Using France-specific comprehensive query');
           break;
+          
         case 'cn':
-          // Include Chinese auto brands and terms for better results
-          query = '(auto OR automotive OR car OR vehicle OR EV OR "electric vehicle" OR BYD OR "比亚迪" OR NIO OR "蔚来" OR Xpeng OR "小鹏" OR Li Auto OR "理想" OR Geely OR "吉利" OR "Great Wall" OR "长城") NOT (sports OR entertainment)';
-          console.log('[fetchAutoFinanceNews] Using China-specific query');
+          // Chinese query - comprehensive terms
+          query = '((汽车 OR 车 OR 轿车 OR 车辆 OR 电动车 OR 新能源 OR 混动) AND (贷款 OR 金融 OR 融资 OR 租赁 OR 销售 OR 市场 OR 产业 OR 商业 OR 经销商)) OR (比亚迪 OR BYD OR 蔚来 OR NIO OR 小鹏 OR 理想 OR 吉利 OR 长城 OR 长安 OR 上汽 OR 广汽) NOT (体育 OR 娱乐 OR 游戏 OR 明星)';
+          console.log('[fetchAutoFinanceNews] Using China-specific comprehensive query');
+          break;
+          
+        case 'us':
+        case 'gb':
+        case 'ca':
+        case 'au':
+          // English-speaking countries - optimized query under 500 chars
+          query = '((auto OR automotive OR car OR vehicle OR EV) AND (finance OR loan OR lease OR credit OR sales OR market)) OR ((Ford OR GM OR Tesla OR Toyota OR Stellantis OR Honda OR Nissan OR Hyundai) AND (sales OR market OR finance OR production)) NOT (NBA OR NFL OR NHL OR "video game" OR celebrity OR crime)';
+          console.log('[fetchAutoFinanceNews] Using optimized English query (under 500 chars)');
           break;
       }
     }
@@ -166,19 +295,17 @@ export async function fetchAutoFinanceNews(
     if (filters?.country && filters.country !== 'all') {
       switch (filters.country) {
         case 'us':
-          language = 'en';
-          break;
         case 'gb':
-          language = 'en';
-          break;
         case 'ca':
-          language = 'en';
-          break;
         case 'au':
           language = 'en';
           break;
         case 'cn':
-          // Don't specify language to get both Chinese and English content
+          // For China, don't specify language to get both Chinese and English content
+          language = '';
+          break;
+        case 'jp':
+          // For Japan, don't specify language to get both Japanese and English content
           language = '';
           break;
         case 'de':
@@ -186,10 +313,6 @@ export async function fetchAutoFinanceNews(
           break;
         case 'fr':
           language = 'fr';
-          break;
-        case 'jp':
-          // Don't specify language to get both Japanese and English content
-          language = '';
           break;
         default:
           language = 'en';
@@ -200,223 +323,16 @@ export async function fetchAutoFinanceNews(
     }
     console.log('[fetchAutoFinanceNews] Using language:', language || 'any', 'for country:', filters?.country);
     
-    // Add country-specific domains for better targeting
+    // Add comprehensive country-specific domains
     if (filters?.country && filters.country !== 'all') {
-      let domains = '';
-      switch (filters.country) {
-        case 'us':
-          domains = [
-            // Major financial news
-            'wsj.com',
-            'bloomberg.com',
-            'cnbc.com',
-            'reuters.com',
-            'marketwatch.com',
-            'businessinsider.com',
-            'forbes.com',
-            'fortune.com',
-            'barrons.com',
-            'investopedia.com',
-            
-            // Major newspapers
-            'nytimes.com',
-            'washingtonpost.com',
-            'usatoday.com',
-            'latimes.com',
-            'chicagotribune.com',
-            
-            // Auto industry specific
-            'autonews.com',
-            'automotivenews.com',
-            'wardsauto.com',
-            'greencarreports.com',
-            'thetruthaboutcars.com',
-            'carscoops.com',
-            'motor1.com',
-            'motortrend.com',
-            'caranddriver.com',
-            'roadandtrack.com',
-            'autoblog.com',
-            'jalopnik.com',
-            'electrek.co',
-            'insideevs.com',
-            'teslarati.com',
-            
-            // Finance industry
-            'americanbanker.com',
-            'autofinancenews.net',
-            'autoremarketing.com'
-          ].join(',');
-          break;
-        case 'gb':
-          domains = [
-            // Major news sources
-            'bbc.co.uk',
-            'bbc.com',
-            'theguardian.com',
-            'telegraph.co.uk',
-            'ft.com',
-            'reuters.co.uk',
-            'independent.co.uk',
-            'thetimes.co.uk',
-            'dailymail.co.uk',
-            'standard.co.uk',
-            
-            // Business news
-            'cityam.com',
-            'thisismoney.co.uk',
-            'proactiveinvestors.co.uk',
-            
-            // Auto specific
-            'autoexpress.co.uk',
-            'autocar.co.uk',
-            'whatcar.com',
-            'carmagazine.co.uk',
-            'evo.co.uk',
-            'topgear.com',
-            'pistonheads.com',
-            'honestjohn.co.uk',
-            'parkers.co.uk',
-            'carwow.co.uk',
-            'drivingelectric.com',
-            'motoringresearch.com',
-            'am-online.com',
-            'fleetnews.co.uk'
-          ].join(',');
-          break;
-        case 'ca':
-          domains = [
-            // Major news sources
-            'cbc.ca',
-            'globalnews.ca',
-            'ctvnews.ca',
-            'financialpost.com',
-            'theglobeandmail.com',
-            'nationalpost.com',
-            'thestar.com',
-            'montrealgazette.com',
-            'vancouversun.com',
-            'ottawacitizen.com',
-            
-            // Business news
-            'bnnbloomberg.ca',
-            'canadianbusiness.com',
-            
-            // Auto specific
-            'driving.ca',
-            'auto123.com',
-            'autotrader.ca',
-            'wheels.ca',
-            'canadianautodealer.ca',
-            'autosphere.ca',
-            'electric-vehiclenews.com',
-            'fleetcarma.com'
-          ].join(',');
-          break;
-        case 'au':
-          domains = [
-            // Major news sources
-            'smh.com.au',
-            'theaustralian.com.au',
-            'afr.com',
-            'news.com.au',
-            'abc.net.au',
-            'theage.com.au',
-            'dailytelegraph.com.au',
-            'heraldsun.com.au',
-            'couriermail.com.au',
-            'adelaidenow.com.au',
-            
-            // Business news
-            'businessinsider.com.au',
-            'stockhead.com.au',
-            'theurbandeveloper.com',
-            
-            // Auto specific
-            'drive.com.au',
-            'carsales.com.au',
-            'caradvice.com.au',
-            'motoring.com.au',
-            'whichcar.com.au',
-            'carsguide.com.au',
-            'goauto.com.au',
-            'autotalk.com.au',
-            'evcentral.com.au',
-            'thedriven.io',
-            'carexpert.com.au'
-          ].join(',');
-          break;
-        case 'de':
-          domains = 'handelsblatt.com,manager-magazin.de,wiwo.de,faz.net,sueddeutsche.de,spiegel.de,zeit.de,welt.de,auto-motor-und-sport.de,automobilwoche.de,focus.de,stern.de';
-          break;
-        case 'fr':
-          domains = 'lesechos.fr,latribune.fr,lefigaro.fr,lemonde.fr,challenges.fr,usinenouvelle.com,largus.fr,caradisiac.com,automobile-magazine.fr,turbo.fr,bfmtv.com';
-          break;
-        case 'jp':
-          // Comprehensive list of Japanese news domains including automotive, business, and general news
-          domains = [
-            // Major Japanese newspapers
-            'asahi.com',
-            'mainichi.jp',
-            'yomiuri.co.jp',
-            'sankei.com',
-            'nikkei.com',
-            'tokyo-np.co.jp',
-            'chunichi.co.jp',
-            'hokkaido-np.co.jp',
-            'kahoku.co.jp',
-            'nishinippon.co.jp',
-            
-            // Business and financial news
-            'business.nikkei.com',
-            'toyokeizai.net',
-            'diamond.jp',
-            'newspicks.com',
-            'bloomberg.co.jp',
-            'reuters.com/markets/asia',
-            
-            // Automotive specific
-            'response.jp',
-            'carview.yahoo.co.jp',
-            'car.watch.impress.co.jp',
-            'webcg.net',
-            'autocar.jp',
-            'motor-fan.jp',
-            'bestcarweb.jp',
-            'kuruma-news.jp',
-            'carsensor.net',
-            'goo-net.com',
-            
-            // News agencies and broadcasters
-            'nhk.or.jp',
-            'jiji.com',
-            'kyodo-news.jp',
-            'tv-asahi.co.jp',
-            'tbs.co.jp',
-            'ntv.co.jp',
-            'fujitv.co.jp',
-            
-            // English language Japanese sources
-            'japantimes.co.jp',
-            'asia.nikkei.com',
-            'english.kyodonews.net',
-            'japantoday.com',
-            'japannews.yomiuri.co.jp',
-            'asahi.com/ajw',
-            'mainichi.jp/english'
-          ].join(',');
-          break;
-        case 'cn':
-          domains = 'chinadaily.com.cn,scmp.com,caixinglobal.com,yicaiglobal.com,36kr.com,xinhuanet.com,peopledaily.com.cn,cgtn.com,globaltimes.cn,shine.cn,ecns.cn';
-          break;
-      }
+      const domains = getDomainsByCountry(filters.country);
       if (domains) {
         params.append('domains', domains);
-        console.log('[fetchAutoFinanceNews] Using domains:', domains);
+        console.log('[fetchAutoFinanceNews] Using comprehensive domains for country:', filters.country);
       }
     }
 
-    // Add source quality filtering
+    // Add source quality filtering if specified
     if (filters?.sourceQuality && filters.sourceQuality !== 'all' && filters.sourceQuality !== 'broad') {
       let sources: string[] = [];
       switch (filters.sourceQuality) {
@@ -428,14 +344,11 @@ export async function fetchAutoFinanceNews(
           break;
       }
       if (sources.length > 0) {
-        // Don't use sources parameter as it might be too restrictive
-        // Instead, we'll filter results after fetching
-        console.log('[fetchAutoFinanceNews] Will filter by sources:', sources);
+        console.log('[fetchAutoFinanceNews] Will filter by source quality:', filters.sourceQuality);
       }
     }
 
     console.log('[fetchAutoFinanceNews] Making request to:', `${NEWS_API_BASE_URL}/everything`);
-    console.log('[fetchAutoFinanceNews] Request params:', Object.fromEntries(params));
     
     const response = await fetch(`${NEWS_API_BASE_URL}/everything?${params}`, {
       headers: {
@@ -447,24 +360,9 @@ export async function fetchAutoFinanceNews(
     console.log('[fetchAutoFinanceNews] Response status:', data.status);
     console.log('[fetchAutoFinanceNews] Total results:', data.totalResults);
     console.log('[fetchAutoFinanceNews] Articles received:', data.articles?.length || 0);
-    
-    // Log sample of Japanese articles if country is Japan
-    if (filters?.country === 'jp' && data.articles?.length > 0) {
-      console.log('[fetchAutoFinanceNews] Sample Japanese articles:');
-      data.articles.slice(0, 3).forEach((article, index) => {
-        console.log(`  Article ${index + 1}:`, {
-          title: article.title.substring(0, 50) + '...',
-          source: article.source.name,
-          url: article.url,
-          description: article.description?.substring(0, 50) + '...'
-        });
-      });
-    }
 
     if (data.status !== 'ok') {
       console.error('[fetchAutoFinanceNews] NewsAPI Error:', data.code, data.message);
-      console.error('[fetchAutoFinanceNews] Full error response:', data);
-      // Provide more specific error messages
       if (data.code === 'apiKeyInvalid') {
         throw new Error('Invalid API key. Please check your NewsAPI configuration.');
       } else if (data.code === 'rateLimited') {
@@ -475,226 +373,554 @@ export async function fetchAutoFinanceNews(
 
     // Filter and transform NewsAPI articles to our format
     console.log('[fetchAutoFinanceNews] Starting to filter articles...');
-    const filteredArticles = data.articles
-      .filter((article, index) => {
-        if (!article.title || !article.url || !article.description) {
-          console.log(`[fetchAutoFinanceNews] Article ${index} rejected - missing required fields`);
-          return false;
+    
+    // Helper function to check whole word boundaries
+    const hasWholeWord = (text: string, word: string): boolean => {
+      const regex = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      return regex.test(text);
+    };
+    
+    // Helper function to calculate relevance score
+    const calculateRelevanceScore = (article: NewsAPIArticle, country?: string): number => {
+      const title = article.title.toLowerCase();
+      const description = (article.description || '').toLowerCase();
+      const combined = title + ' ' + description;
+      let score = 0;
+      
+      // Get terms based on country
+      const financeContext = getFinanceContextTerms(country);
+      const autoTerms = getAutoTerms(country);
+      const brandTerms = getBrandTerms(country);
+      const exclusionTerms = getExclusionTerms(country);
+      const businessContext = getBusinessContextTerms(country);
+      
+      // First, check for strong exclusion patterns (immediate disqualification)
+      const strongExclusions = getStrongExclusionPatterns();
+      for (const pattern of strongExclusions) {
+        if (pattern.test(combined)) {
+          return -1000; // Immediate disqualification
         }
-        
-        // Convert to lowercase for case-insensitive matching
-        const titleLower = article.title.toLowerCase();
-        const descLower = (article.description || '').toLowerCase();
-        const combined = titleLower + ' ' + descLower;
-        
-        // Exclude articles that are clearly not about auto finance
-        const excludePatterns = [
-          /nba/i,
-          /basketball/i,
-          /football/i,
-          /soccer/i,
-          /baseball/i,
-          /sports team/i,
-          /athlete/i,
-          /player/i,
-          /child support/i,
-          /divorce/i,
-          /alimony/i,
-          /celebrity/i,
-          /entertainment/i,
-          /movie/i,
-          /music/i,
-          /album/i,
-          /concert/i
-        ];
-        
-        // Check if article contains any exclude patterns
-        const shouldExclude = excludePatterns.some(pattern => pattern.test(combined));
-        if (shouldExclude) return false;
-        
-        // For non-English content, use language-appropriate terms
-        let autoFinanceTerms = [
-          // General auto terms
-          'auto',
-          'car',
-          'vehicle',
-          'automotive',
-          
-          // Major automakers
-          'tesla',
-          'ford',
-          'gm',
-          'general motors',
-          'toyota',
-          'volkswagen',
-          'vw',
-          'honda',
-          'nissan',
-          'stellantis',
-          'chrysler',
-          'jeep',
-          'ram',
-          'dodge',
-          'hyundai',
-          'kia',
-          'mazda',
-          'subaru',
-          'bmw',
-          'mercedes',
-          'audi',
-          'porsche',
-          'rivian',
-          'lucid',
-          
-          // Electric/Alternative fuel
-          'ev',
-          'electric vehicle',
-          'hybrid',
-          'phev',
-          'plug-in hybrid',
-          'battery electric',
-          'hydrogen fuel cell',
-          'charging station',
-          
-          // Auto finance specific terms
-          'auto loan',
-          'car loan',
-          'vehicle financing',
-          'auto finance',
-          'car finance',
-          'subprime auto',
-          'prime auto',
-          'auto lending',
-          'vehicle leasing',
-          'lease payment',
-          'loan origination',
-          'auto securitization',
-          'abs',
-          'asset-backed securities',
-          'floorplan',
-          'floor plan financing',
-          'captive finance',
-          'dealer financing',
-          'indirect lending',
-          'direct lending',
-          'residual value',
-          'loan-to-value',
-          'ltv',
-          'debt-to-income',
-          'dti',
-          'repossession',
-          'repo',
-          'charge-off',
-          'delinquency',
-          'default rate',
-          'recovery rate',
-          'credit union auto',
-          'bank auto loan',
-          
-          // Industry terms
-          'dealership',
-          'dealer network',
-          'franchise dealer',
-          'independent dealer',
-          'cpo',
-          'certified pre-owned',
-          'used car',
-          'new car',
-          'inventory financing',
-          'wholesale auction',
-          'retail automotive',
-          'auto retail',
-          'vehicle sales',
-          'fleet sales',
-          'fleet management',
-          'rental car',
-          'car rental',
-          
-          // Financial metrics
-          'apr',
-          'annual percentage rate',
-          'interest rate',
-          'credit score',
-          'fico',
-          'credit tier',
-          'payment',
-          'monthly payment',
-          'down payment',
-          'trade-in',
-          'negative equity',
-          'gap insurance',
-          'extended warranty',
-          'service contract',
-          
-          // Market/Industry
-          'auto industry',
-          'automotive sector',
-          'auto sales',
-          'vehicle market',
-          'auto market',
-          'saar',
-          'seasonally adjusted annual rate',
-          'market share',
-          'production',
-          'assembly plant',
-          'manufacturing',
-          'supply chain',
-          'semiconductor shortage',
-          'chip shortage',
-          'inventory levels'
-        ];
-        
-        // Add language-specific terms for better filtering
-        switch (filters?.country) {
-          case 'cn':
-            autoFinanceTerms = [...autoFinanceTerms, '汽车', '车', '电动', '特斯拉', '比亚迪', 'byd', '蔚来', 'nio', '小鹏', 'xpeng', '理想', '长城'];
-            break;
-          case 'de':
-            autoFinanceTerms = [...autoFinanceTerms, 'automobil', 'fahrzeug', 'elektroauto', 'autokredit', 'finanzierung', 'leasing', 'autohändler'];
-            break;
-          case 'fr':
-            autoFinanceTerms = [...autoFinanceTerms, 'automobile', 'voiture', 'véhicule', 'crédit auto', 'financement', 'concessionnaire'];
-            break;
-          case 'jp':
-            autoFinanceTerms = [...autoFinanceTerms, 
-              // General auto terms
-              '自動車', '車', '車両', 'クルマ', '乗用車',
-              // Electric/hybrid
-              '電気自動車', 'EV', 'ハイブリッド', 'HV', 'PHV', 'PHEV',
-              // Auto finance terms
-              '自動車ローン', 'カーローン', 'オートローン', '車両ローン',
-              '自動車リース', 'カーリース', 'オートリース',
-              '自動車金融', '自動車ファイナンス', 'オートファイナンス',
-              '残価設定', '残クレ', '金利', '融資', '審査',
-              // Automakers
-              'トヨタ', 'ホンダ', '日産', 'マツダ', 'スバル', '三菱',
-              'スズキ', 'ダイハツ', 'レクサス', 'インフィニティ', 'アキュラ',
-              // Auto industry
-              '自動車産業', '自動車業界', '自動車メーカー', 'カーディーラー',
-              '中古車', '新車', '自動車販売', '自動車市場'
-            ];
-            break;
+      }
+      
+      // Check for soft exclusion terms (negative scoring but not disqualifying)
+      for (const term of exclusionTerms) {
+        if (typeof term === 'string' && hasWholeWord(combined, term)) {
+          score -= 30; // Moderate penalty
+        } else if (term instanceof RegExp && term.test(combined)) {
+          score -= 30;
         }
-        
-        // Check if article contains at least one auto finance term
-        const hasAutoFinanceTerm = autoFinanceTerms.some(term => combined.includes(term));
-        
-        if (!hasAutoFinanceTerm) {
-          console.log(`[fetchAutoFinanceNews] Article ${index} rejected - no auto finance terms found`);
-          console.log(`  Title: ${article.title.substring(0, 50)}...`);
+      }
+      
+      // TIERED SCORING SYSTEM
+      let hasAutoTerm = false;
+      let hasFinanceContext = false;
+      let hasBrandMention = false;
+      let hasBusinessContext = false;
+      let autoScore = 0;
+      let financeScore = 0;
+      
+      // Score automotive terms
+      for (const term of autoTerms) {
+        if (term.includes(' ')) {
+          // Compound terms (e.g., "auto loan") get higher score
+          if (combined.includes(term)) {
+            autoScore += 20;
+            hasAutoTerm = true;
+            if (title.includes(term)) {
+              autoScore += 15;
+            }
+          }
+        } else if (hasWholeWord(combined, term)) {
+          autoScore += 8;
+          hasAutoTerm = true;
+          if (hasWholeWord(title, term)) {
+            autoScore += 7;
+          }
         }
+      }
+      
+      // Score finance context
+      for (const term of financeContext) {
+        if (hasWholeWord(combined, term)) {
+          financeScore += 12;
+          hasFinanceContext = true;
+          if (hasWholeWord(title, term)) {
+            financeScore += 8;
+          }
+        }
+      }
+      
+      // Score brand mentions
+      let brandScore = 0;
+      for (const brand of brandTerms) {
+        if (hasWholeWord(combined, brand)) {
+          brandScore += 8;
+          hasBrandMention = true;
+          if (hasWholeWord(title, brand)) {
+            brandScore += 5;
+          }
+        }
+      }
+      
+      // Score business context (sales, market, industry, etc.)
+      let businessScore = 0;
+      for (const term of businessContext) {
+        if (hasWholeWord(combined, term)) {
+          businessScore += 5;
+          hasBusinessContext = true;
+        }
+      }
+      
+      // Calculate base score
+      score += autoScore + financeScore + brandScore + businessScore;
+      
+      // INCLUSIVE SCORING RULES
+      if (hasAutoTerm && hasFinanceContext) {
+        score += 15; // Ideal combination
+      } else if (hasAutoTerm && hasBusinessContext) {
+        score += 8; // Good combination
+      } else if (hasBrandMention && (hasFinanceContext || hasBusinessContext)) {
+        score += 5; // Brand with context
+      } else if (hasAutoTerm && autoScore >= 15) {
+        score -= 5; // Strong auto-only content
+      } else if (hasBrandMention && brandScore >= 10) {
+        score -= 10; // Strong brand focus
+      } else if (!hasAutoTerm && !hasBrandMention) {
+        score -= 50; // No auto or brand content
+      }
+      
+      // Special boost for highly relevant phrases
+      const highValuePhrases = getHighValuePhrases(country);
+      for (const phrase of highValuePhrases) {
+        if (combined.includes(phrase.toLowerCase())) {
+          score += 30;
+        }
+      }
+      
+      // Additional context bonuses
+      if (combined.includes('electric vehicle') || combined.includes('ev ') || hasWholeWord(combined, 'ev')) {
+        score += 10;
+      }
+      if (combined.includes('dealership') || combined.includes('dealer')) {
+        score += 8;
+      }
+      if (combined.includes('auto industry') || combined.includes('automotive industry')) {
+        score += 12;
+      }
+      
+      return score;
+    };
+    
+    // Comprehensive term getters with full translations for all countries
+    const getFinanceContextTerms = (country?: string): string[] => {
+      const baseTerms = [
+        'loan', 'financing', 'finance', 'credit', 'lending', 'lender', 'borrowing',
+        'apr', 'interest', 'rate', 'payment', 'lease', 'leasing', 'rental',
+        'bank', 'financial', 'debt', 'delinquency', 'default', 'repossession',
+        'securitization', 'underwriting', 'origination', 'portfolio', 'asset',
+        'subprime', 'prime', 'risk', 'insurance', 'warranty', 'coverage',
+        'refinance', 'refinancing', 'approval', 'application', 'qualify'
+      ];
+      
+      switch (country) {
+        case 'de':
+          return [...baseTerms,
+            'kredit', 'darlehen', 'finanzierung', 'kreditgeber', 'zinsen', 'zinssatz',
+            'rate', 'zahlung', 'leasing', 'miete', 'bank', 'sparkasse', 'volksbank',
+            'versicherung', 'garantie', 'schulden', 'verzug', 'ausfall', 'pfändung',
+            'verbriefung', 'risikoprüfung', 'kreditwürdigkeit', 'bonität', 'schufa',
+            'refinanzierung', 'umschuldung', 'genehmigung', 'antrag', 'qualifikation',
+            'effektivzins', 'sollzins', 'tilgung', 'laufzeit', 'anzahlung'
+          ];
+          
+        case 'fr':
+          return [...baseTerms,
+            'crédit', 'prêt', 'emprunt', 'financement', 'prêteur', 'taux', 'intérêt',
+            'mensualité', 'paiement', 'versement', 'leasing', 'loa', 'lld', 'location',
+            'banque', 'financier', 'dette', 'défaut', 'défaillance', 'saisie',
+            'titrisation', 'souscription', 'origination', 'portefeuille', 'actif',
+            'subprime', 'prime', 'risque', 'assurance', 'garantie', 'couverture',
+            'refinancement', 'rachat', 'approbation', 'demande', 'qualification',
+            'taeg', 'teg', 'remboursement', 'durée', 'apport', 'acompte'
+          ];
+          
+        case 'jp':
+          return [...baseTerms,
+            'ローン', 'ロン', '融資', 'ゆうし', '貸付', 'かしつけ', '借入', 'かりいれ',
+            '金利', 'きんり', '利息', 'りそく', '利率', 'りりつ', '支払い', 'しはらい',
+            'リース', 'りーす', 'レンタル', 'れんたる', '賃貸', 'ちんたい',
+            '銀行', 'ぎんこう', '金融', 'きんゆう', '債務', 'さいむ', '延滞', 'えんたい',
+            'デフォルト', 'でふぉると', '差し押さえ', 'さしおさえ', '回収', 'かいしゅう',
+            '証券化', 'しょうけんか', '引受', 'ひきうけ', '審査', 'しんさ',
+            'サブプライム', 'さぶぷらいむ', 'プライム', 'ぷらいむ', 'リスク', 'りすく',
+            '保険', 'ほけん', '保証', 'ほしょう', 'カバー', 'かばー',
+            '借り換え', 'かりかえ', '承認', 'しょうにん', '申請', 'しんせい',
+            '金融機関', 'きんゆうきかん', '信用', 'しんよう', '与信', 'よしん',
+            '残価設定', 'ざんかせってい', '残クレ', 'ざんくれ', '頭金', 'あたまきん'
+          ];
+          
+        case 'cn':
+          return [...baseTerms,
+            '贷款', '贷', '融资', '借款', '借贷', '信贷', '放贷', '贷方',
+            '利率', '利息', '年利率', '月供', '还款', '支付', '付款',
+            '租赁', '融资租赁', '经营租赁', '出租', '承租',
+            '银行', '金融', '金融机构', '债务', '违约', '拖欠', '逾期',
+            '资产证券化', '承销', '发放', '组合', '资产',
+            '次贷', '次级', '优质', '风险', '保险', '保修', '保障',
+            '再融资', '转贷', '审批', '申请', '资质', '资格',
+            '首付', '月付', '年化', '征信', '信用', '评级', '担保'
+          ];
+          
+        default:
+          return baseTerms;
+      }
+    };
+    
+    const getBusinessContextTerms = (country?: string): string[] => {
+      const baseTerms = [
+        'sales', 'market', 'industry', 'business', 'revenue', 'earnings', 'income',
+        'profit', 'growth', 'demand', 'supply', 'production', 'manufacturing',
+        'quarterly', 'annual', 'forecast', 'outlook', 'analysis', 'report', 'study',
+        'investment', 'stock', 'shares', 'valuation', 'acquisition', 'merger',
+        'partnership', 'expansion', 'strategy', 'innovation', 'technology',
+        'startup', 'venture', 'funding', 'capital', 'ipo', 'listing'
+      ];
+      
+      switch (country) {
+        case 'de':
+          return [...baseTerms,
+            'verkauf', 'absatz', 'markt', 'industrie', 'geschäft', 'umsatz', 'erlös',
+            'gewinn', 'wachstum', 'nachfrage', 'angebot', 'produktion', 'herstellung',
+            'quartal', 'jährlich', 'prognose', 'ausblick', 'analyse', 'bericht',
+            'investition', 'aktie', 'anteil', 'bewertung', 'übernahme', 'fusion',
+            'partnerschaft', 'expansion', 'strategie', 'innovation', 'technologie',
+            'startup', 'kapital', 'börsengang', 'notierung'
+          ];
+          
+        case 'fr':
+          return [...baseTerms,
+            'ventes', 'marché', 'industrie', 'affaires', 'revenus', 'bénéfices',
+            'profit', 'croissance', 'demande', 'offre', 'production', 'fabrication',
+            'trimestriel', 'annuel', 'prévision', 'perspectives', 'analyse', 'rapport',
+            'investissement', 'action', 'parts', 'valorisation', 'acquisition', 'fusion',
+            'partenariat', 'expansion', 'stratégie', 'innovation', 'technologie',
+            'startup', 'capital', 'introduction', 'cotation'
+          ];
+          
+        case 'jp':
+          return [...baseTerms,
+            '販売', 'はんばい', '売上', 'うりあげ', '市場', 'しじょう', '産業', 'さんぎょう',
+            'ビジネス', 'びじねす', '収益', 'しゅうえき', '利益', 'りえき',
+            '成長', 'せいちょう', '需要', 'じゅよう', '供給', 'きょうきゅう',
+            '生産', 'せいさん', '製造', 'せいぞう', '四半期', 'しはんき',
+            '年間', 'ねんかん', '予測', 'よそく', '見通し', 'みとおし',
+            '分析', 'ぶんせき', 'レポート', 'れぽーと', '投資', 'とうし',
+            '株式', 'かぶしき', '評価', 'ひょうか', '買収', 'ばいしゅう',
+            '合併', 'がっぺい', '提携', 'ていけい', '拡大', 'かくだい',
+            '戦略', 'せんりゃく', 'イノベーション', 'いのべーしょん',
+            'スタートアップ', 'すたーとあっぷ', '資本', 'しほん', '上場', 'じょうじょう'
+          ];
+          
+        case 'cn':
+          return [...baseTerms,
+            '销售', '销量', '市场', '市场', '产业', '行业', '业务', '商业',
+            '营收', '收入', '盈利', '利润', '增长', '需求', '供应', '供给',
+            '生产', '制造', '季度', '年度', '预测', '展望', '分析', '报告',
+            '投资', '股票', '股份', '估值', '收购', '并购', '兼并',
+            '合作', '伙伴', '扩张', '战略', '创新', '技术', '科技',
+            '创业', '初创', '融资', '资本', '上市', 'IPO'
+          ];
+          
+        default:
+          return baseTerms;
+      }
+    };
+    
+    const getAutoTerms = (country?: string): string[] => {
+      const baseTerms = [
+        'auto', 'car', 'cars', 'automotive', 'automobile', 'vehicle', 'vehicles',
+        'dealership', 'dealer', 'dealers', 'automaker', 'automakers', 'manufacturer',
+        'suv', 'suvs', 'sedan', 'sedans', 'truck', 'trucks', 'pickup', 'crossover',
+        'minivan', 'van', 'coupe', 'convertible', 'hatchback', 'wagon',
+        'electric', 'hybrid', 'phev', 'bev', 'fuel cell', 'ev', 'evs', 'battery',
+        'fleet', 'rental', 'used car', 'used cars', 'certified', 'cpo', 'new car',
+        'new cars', 'pre-owned', 'driving', 'driver', 'drivers', 'motor', 'engine'
+      ];
+      
+      // Add specific compound terms that should match exactly
+      const compoundTerms = [
+        'auto loan', 'car loan', 'vehicle loan', 'auto loans', 'car loans',
+        'auto finance', 'car finance', 'vehicle finance', 'automotive finance',
+        'auto lending', 'car lending', 'vehicle lending', 'auto lender',
+        'auto dealer', 'car dealer', 'vehicle dealer', 'auto dealers', 'car dealers',
+        'auto sales', 'car sales', 'vehicle sales', 'auto sale', 'car sale',
+        'auto industry', 'car industry', 'automotive industry', 'auto sector',
+        'auto market', 'car market', 'vehicle market', 'automotive market',
+        'car manufacturer', 'auto manufacturer', 'vehicle manufacturer',
+        'car company', 'auto company', 'automotive company',
+        'car buying', 'car shopping', 'vehicle purchase', 'auto insurance'
+      ];
+      
+      switch (country) {
+        case 'de':
+          return [...baseTerms, ...compoundTerms,
+            'automobil', 'auto', 'wagen', 'fahrzeug', 'pkw', 'kraftfahrzeug', 'kfz',
+            'autohaus', 'autohändler', 'händler', 'hersteller', 'automobilhersteller',
+            'geländewagen', 'suv', 'limousine', 'kombi', 'kleinwagen', 'transporter',
+            'elektroauto', 'e-auto', 'hybrid', 'hybridfahrzeug', 'elektrofahrzeug',
+            'batterie', 'akku', 'brennstoffzelle', 'wasserstoff',
+            'gebrauchtwagen', 'neuwagen', 'jahreswagen', 'vorführwagen',
+            'flotte', 'fuhrpark', 'mietwagen', 'leihwagen',
+            'autokredit', 'kfz-finanzierung', 'autoleasing', 'autoversicherung',
+            'automobilwirtschaft', 'automarkt', 'automobilindustrie', 'automobilbranche'
+          ];
+          
+        case 'fr':
+          return [...baseTerms, ...compoundTerms,
+            'automobile', 'auto', 'voiture', 'véhicule', 'berline', 'break',
+            'concessionnaire', 'garage', 'garagiste', 'constructeur', 'fabricant',
+            'suv', '4x4', 'monospace', 'citadine', 'utilitaire', 'fourgon',
+            'électrique', 'hybride', 'hybride rechargeable', 'thermique',
+            'batterie', 'pile à combustible', 'hydrogène',
+            'occasion', 'neuf', 'neuve', 'démonstration',
+            'flotte', 'parc', 'location', 'crédit auto', 'prêt auto',
+            'financement automobile', 'leasing', 'loa', 'lld',
+            'industrie automobile', 'marché automobile', 'secteur automobile'
+          ];
+          
+        case 'jp':
+          return [...baseTerms, ...compoundTerms,
+            '自動車', 'じどうしゃ', '車', 'くるま', '車両', 'しゃりょう',
+            'クルマ', 'くるま', '乗用車', 'じょうようしゃ', '軽自動車', 'けいじどうしゃ',
+            'ディーラー', 'でぃーらー', '販売店', 'はんばいてん', 'メーカー', 'めーかー',
+            '自動車メーカー', 'じどうしゃめーかー', '製造業', 'せいぞうぎょう',
+            'SUV', 'セダン', 'せだん', 'ワゴン', 'わごん', 'ミニバン', 'みにばん',
+            'トラック', 'とらっく', 'バン', 'ばん', 'クーペ', 'くーぺ',
+            '電気自動車', 'でんきじどうしゃ', 'EV', 'ハイブリッド', 'はいぶりっど',
+            'HV', 'PHV', 'PHEV', 'FCV', '燃料電池', 'ねんりょうでんち',
+            'バッテリー', 'ばってりー', '電池', 'でんち', '水素', 'すいそ',
+            '中古車', 'ちゅうこしゃ', '新車', 'しんしゃ', '認定中古車', 'にんていちゅうこしゃ',
+            'レンタカー', 'れんたかー', 'カーシェア', 'かーしぇあ',
+            '自動車ローン', 'じどうしゃろーん', 'カーローン', 'かーろーん',
+            'オートローン', 'おーとろーん', '自動車リース', 'じどうしゃりーす',
+            '自動車産業', 'じどうしゃさんぎょう', '自動車業界', 'じどうしゃぎょうかい',
+            '自動車市場', 'じどうしゃしじょう'
+          ];
+          
+        case 'cn':
+          return [...baseTerms, ...compoundTerms,
+            '汽车', '车', '轿车', '车辆', '乘用车', '商用车', '客车',
+            '经销商', '4S店', '车商', '制造商', '车企', '主机厂', '整车厂',
+            'SUV', '越野车', '轿车', '面包车', '皮卡', 'MPV', '跑车',
+            '电动车', '电动汽车', '新能源', '新能源车', '混动', '混合动力',
+            '插电混动', '纯电', '氢能源', '燃料电池', '电池', '动力电池',
+            '二手车', '新车', '认证二手车', '平行进口', '进口车',
+            '租车', '汽车租赁', '车队', '网约车', '共享汽车',
+            '汽车贷款', '车贷', '汽车金融', '汽车融资', '融资租赁',
+            '汽车保险', '车险', '汽车产业', '汽车行业', '汽车市场',
+            '造车新势力', '传统车企'
+          ];
+          
+        default:
+          return [...baseTerms, ...compoundTerms];
+      }
+    };
+    
+    const getBrandTerms = (country?: string): string[] => {
+      const globalBrands = [
+        'toyota', 'ford', 'general motors', 'gm', 'stellantis', 'volkswagen', 'vw',
+        'honda', 'nissan', 'hyundai', 'kia', 'mazda', 'subaru', 'mitsubishi',
+        'bmw', 'mercedes', 'mercedes-benz', 'audi', 'porsche', 'volvo',
+        'tesla', 'rivian', 'lucid', 'polestar', 'nio', 'xpeng', 'byd',
+        'chrysler', 'jeep', 'ram', 'dodge', 'chevrolet', 'buick', 'cadillac', 'gmc',
+        'lexus', 'acura', 'infiniti', 'genesis', 'alfa romeo', 'maserati', 'ferrari',
+        'lamborghini', 'bentley', 'rolls-royce', 'aston martin', 'jaguar', 'land rover'
+      ];
+      
+      // Add country-specific brands
+      switch (country) {
+        case 'de':
+          return [...globalBrands, 'opel', 'smart', 'maybach', 'borgward', 'alpina'];
+          
+        case 'fr':
+          return [...globalBrands, 'renault', 'peugeot', 'citroën', 'dacia', 'alpine', 'ds'];
+          
+        case 'jp':
+          return [...globalBrands,
+            'トヨタ', 'ホンダ', '日産', 'マツダ', 'スバル', '三菱', 'スズキ',
+            'ダイハツ', 'レクサス', 'インフィニティ', 'アキュラ', 'いすゞ', '日野'
+          ];
+          
+        case 'cn':
+          return [...globalBrands,
+            '比亚迪', 'byd', '蔚来', 'nio', '小鹏', 'xpeng', '理想', 'li auto',
+            '吉利', 'geely', '长城', 'great wall', '长安', 'changan', '上汽', 'saic',
+            '广汽', 'gac', '一汽', 'faw', '东风', 'dongfeng', '奇瑞', 'chery',
+            '哈弗', 'haval', '红旗', 'hongqi', '五菱', 'wuling', '宝骏', 'baojun'
+          ];
+          
+        default:
+          return globalBrands;
+      }
+    };
+    
+    // Strong exclusions that immediately disqualify an article
+    const getStrongExclusionPatterns = (): RegExp[] => {
+      return [
+        // Healthcare - very specific patterns
+        /\bauto-?immune\s+(disease|disorder|condition)/i,
+        /\bauto-?injector\s+(pen|device|medication)/i,
+        /\bautomatic\s+insulin/i,
         
-        return hasAutoFinanceTerm;
-      })
+        // Pure sports content
+        /\b(nba|nfl|mlb|nhl)\s+(game|player|team|season|playoff)/i,
+        /\b(basketball|football|baseball|soccer)\s+(player|team|game|match)/i,
+        
+        // Pure entertainment
+        /\b(movie|film|album|concert)\s+(review|release|premiere)/i,
+        /\bcelebrity\s+(news|gossip|scandal)/i,
+        
+        // Crime/Legal (non-business)
+        /\b(murder|assault|robbery|theft)\s+(case|charge|arrest)/i,
+        /\bdivorce\s+(settlement|custody|proceedings)/i,
+      ];
+    };
+    
+    const getExclusionTerms = (country?: string): (string | RegExp)[] => {
+      // Softer exclusions - penalize but don't disqualify
+      const baseExclusions = [
+        // Sports (individual terms)
+        'quarterback', 'touchdown', 'pitcher', 'homerun', 'goalkeeper',
+        
+        // Entertainment (individual terms)
+        'oscar', 'grammy', 'emmy', 'broadway', 'netflix',
+        
+        // Technology (when clearly not auto-related)
+        /\bapp\s+(store|download|update)/i,
+        /\bsoftware\s+(update|patch|bug)/i,
+        
+        // Gaming
+        'fortnite', 'minecraft', 'call of duty', 'playstation', 'xbox',
+        
+        // Food
+        'restaurant review', 'recipe', 'cooking show',
+        
+        // Fashion
+        'fashion week', 'runway show', 'designer collection'
+      ];
+      
+      // Add country-specific exclusions
+      switch (country) {
+        case 'de':
+          return [...baseExclusions,
+            'fußball', 'bundesliga', 'spieler', 'mannschaft', 'torwart',
+            'schauspieler', 'musik', 'film', 'serie', 'kino',
+            'rezept', 'restaurant', 'kochen', 'mode', 'kollektion'
+          ];
+          
+        case 'fr':
+          return [...baseExclusions,
+            'football', 'ligue 1', 'joueur', 'équipe', 'gardien',
+            'acteur', 'musique', 'film', 'cinéma', 'série',
+            'recette', 'restaurant', 'cuisine', 'mode', 'collection'
+          ];
+          
+        case 'jp':
+          return [...baseExclusions,
+            'サッカー', '野球', 'プロ野球', 'Jリーグ', '選手', 'チーム',
+            '映画', '音楽', '俳優', '女優', 'ドラマ', 'アニメ',
+            'ゲーム', 'プレステ', 'ニンテンドー', 'レシピ', '料理',
+            'ファッション', 'コレクション'
+          ];
+          
+        case 'cn':
+          return [...baseExclusions,
+            '足球', '篮球', '中超', 'CBA', '球员', '球队',
+            '电影', '音乐', '演员', '明星', '电视剧', '综艺',
+            '游戏', '王者荣耀', '原神', '食谱', '餐厅', '美食',
+            '时装', '时尚', '秀场'
+          ];
+          
+        default:
+          return baseExclusions;
+      }
+    };
+    
+    const getHighValuePhrases = (country?: string): string[] => {
+      const basePhrases = [
+        'auto loan rate', 'car financing rate', 'vehicle loan apr',
+        'auto finance company', 'car loan provider', 'vehicle financing program',
+        'delinquency rate', 'default rate', 'repossession rate',
+        'subprime auto', 'prime auto loan', 'auto lending market',
+        'dealer financing', 'captive finance', 'floor plan financing',
+        'auto securitization', 'asset-backed securities', 'auto abs',
+        'credit union auto', 'bank auto loan', 'online auto lending',
+        'ev financing', 'electric vehicle loan', 'green auto loan'
+      ];
+      
+      switch (country) {
+        case 'de':
+          return [...basePhrases,
+            'autokredit', 'kfz finanzierung', 'händlerfinanzierung', 'leasingrate',
+            'autokreditzinsen', 'restschuldversicherung', 'ballonfinanzierung',
+            'drei-wege-finanzierung', 'vario-finanzierung', 'elektroauto förderung'
+          ];
+          
+        case 'fr':
+          return [...basePhrases,
+            'crédit auto', 'prêt automobile', 'financement véhicule', 'taux crédit auto',
+            'loa', 'lld', 'crédit ballon', 'location avec option d\'achat',
+            'location longue durée', 'financement électrique', 'bonus écologique'
+          ];
+          
+        case 'jp':
+          return [...basePhrases,
+            '自動車ローン', 'カーローン', 'オートローン', '残価設定', 'ディーラーローン',
+            '残価設定ローン', '残クレ', 'マイカーローン', '新車ローン', '中古車ローン',
+            '自動車リース', 'カーリース', 'オートリース', '個人リース', '法人リース',
+            'EV補助金', '電気自動車ローン'
+          ];
+          
+        case 'cn':
+          return [...basePhrases,
+            '汽车贷款', '车贷', '汽车金融', '经销商融资', '厂家金融',
+            '汽车消费贷款', '新车贷款', '二手车贷款', '融资租赁',
+            '以租代购', '汽车分期', '零首付', '低首付', '贴息贷款',
+            '新能源补贴', '电动车贷款', '绿色金融'
+          ];
+          
+        default:
+          return basePhrases;
+      }
+    };
+    
+    // Score and filter articles
+    const scoredArticles = data.articles
+      .filter(article => article.title && article.url && article.description)
       .map(article => ({
-        title: article.title,
-        summary: article.description || '',
-        image: article.urlToImage || '/api/placeholder/400/300',
-        url: article.url,
-        publishedAt: article.publishedAt,
-        source: article.source.name
+        article,
+        score: calculateRelevanceScore(article, filters?.country)
       }))
-      .slice(0, pageSize); // Limit to requested number of articles
+      .filter(item => {
+        // Log rejected articles for debugging
+        if (item.score < 5) {
+          console.log(`[fetchAutoFinanceNews] Article rejected - score: ${item.score}`);
+          console.log(`  Title: ${item.article.title.substring(0, 60)}...`);
+        }
+        return item.score >= 5; // Lower threshold for more inclusive filtering
+      })
+      .sort((a, b) => b.score - a.score) // Sort by relevance score
+      .slice(0, pageSize); // Limit to requested number
+    
+    const filteredArticles = scoredArticles
+      .map(item => ({
+        title: item.article.title,
+        summary: item.article.description || '',
+        image: item.article.urlToImage || '/api/placeholder/400/300',
+        url: item.article.url,
+        publishedAt: item.article.publishedAt,
+        source: item.article.source.name
+      }));
     
     console.log(`[fetchAutoFinanceNews] Filtered to ${filteredArticles.length} articles`);
     console.log('[fetchAutoFinanceNews] Returning articles');
@@ -731,9 +957,6 @@ export async function fetchTopHeadlines(
       pageSize: pageSize.toString(),
       apiKey: NEWS_API_KEY
     });
-    
-    // Don't use q parameter for top-headlines as it's too restrictive
-    // We'll get business news and filter later
 
     console.log('[fetchTopHeadlines] Making request to:', `${NEWS_API_BASE_URL}/top-headlines`);
     console.log('[fetchTopHeadlines] Request params:', Object.fromEntries(params));
@@ -751,7 +974,6 @@ export async function fetchTopHeadlines(
 
     if (data.status !== 'ok') {
       console.error('[fetchTopHeadlines] NewsAPI Error:', data.code, data.message);
-      console.error('[fetchTopHeadlines] Full error response:', data);
       // If country not supported, return empty array instead of throwing
       if (data.code === 'parameterInvalid' && data.message?.includes('country')) {
         console.log(`[fetchTopHeadlines] Country ${selectedCountry} not supported by NewsAPI`);

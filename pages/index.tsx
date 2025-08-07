@@ -5,9 +5,10 @@ import ChatBot from '@components/ChatBot';
 import ChatWidget from '@components/ChatWidget';
 import LoadingSpinner from '@components/LoadingSpinner';
 import FilterDropdown, { FilterOptions } from '@components/FilterDropdown';
+import type { Article } from '@lib/newsapi';
 
 export default function Home(){
-  const [sorted,setSorted]=useState<any[]>([]);
+  const [sorted,setSorted]=useState<Article[]>([]);
   const [loading,setLoading]=useState(true);
   const [newsLoading,setNewsLoading]=useState(true);
   const [chatOpen, setChatOpen] = useState(false);

@@ -1,8 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+interface Article {
+  title: string;
+  summary?: string;
+  aiSummary?: string;
+  source?: string;
+  publishedAt?: string;
+  url: string;
+}
+
 interface ChatBotProps {
   onClose?: () => void;
-  currentArticles?: any[];
+  currentArticles?: Article[];
 }
 
 interface Message {
@@ -55,16 +64,16 @@ export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
     if (savedHistory) {
       try {
         const parsed = JSON.parse(savedHistory);
-        setChatHistory(parsed.map((session: any) => ({
+        setChatHistory(parsed.map((session: ChatSession) => ({
           ...session,
           timestamp: new Date(session.timestamp),
-          messages: session.messages.map((msg: any) => ({
+          messages: session.messages.map((msg: Message) => ({
             ...msg,
             timestamp: new Date(msg.timestamp)
           }))
         })));
-      } catch (error) {
-        console.error('Failed to load chat history:', error);
+      } catch {
+        console.error('Failed to load chat history');
       }
     }
   }, []);
@@ -123,7 +132,7 @@ export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
       };
       
       setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
+    } catch {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: "Sorry, I encountered an error. Please try again.",

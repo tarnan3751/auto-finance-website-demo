@@ -46,7 +46,7 @@ EVALUATION APPROACH:
 4. Rank actionable intelligence over general market commentary
 
 Articles to rank:
-${articles.map((a:any,i:number)=>`${i+1}. ${a.title}: ${a.summary}`).join('\n')}
+${articles.map((a:{title:string;summary:string},i:number)=>`${i+1}. ${a.title}: ${a.summary}`).join('\n')}
 
 Analyze each article's business impact and return a JSON array of 0-based indices ordered from highest to lowest priority: [x,y,z,...]`;
   const chat = await openai.chat.completions.create({
