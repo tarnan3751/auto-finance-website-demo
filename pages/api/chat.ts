@@ -99,18 +99,50 @@ export default async function handler(req:NextApiRequest,res:NextApiResponse){
       art: a
     })).sort((x: ScoredArticle, y: ScoredArticle) => y.score - x.score);
     
-    // Use top 3 most relevant articles for context
-    const topArticles = scoredArticles.slice(0, 3).map((x: ScoredArticle) => x.art);
+    // Use articles above relevance threshold (0.3 is a good baseline for semantic similarity)
+    // Also limit to max 5 articles to avoid context window issues
+    const RELEVANCE_THRESHOLD = 0.3;
+    const FALLBACK_THRESHOLD = 0.15; // Much lower threshold for including at least one article
+    const MAX_ARTICLES = 5;
     
-    const prompt = `You are an expert auto finance industry analyst and advisor with deep knowledge of automotive lending, market trends, and regulatory developments.
-
-CURRENT MARKET INTELLIGENCE (Live Auto Finance News):
+    const relevantArticles = scoredArticles
+      .filter((x: ScoredArticle) => x.score >= RELEVANCE_THRESHOLD)
+      .slice(0, MAX_ARTICLES)
+      .map((x: ScoredArticle) => x.art);
+    
+    console.log(`[Chat API] Found ${relevantArticles.length} relevant articles (threshold: ${RELEVANCE_THRESHOLD})`);
+    console.log(`[Chat API] Similarity scores:`, scoredArticles.slice(0, 5).map(x => x.score.toFixed(3)));
+    
+    // If no articles meet the main threshold, check if the top article meets the fallback threshold
+    let topArticles = relevantArticles;
+    if (relevantArticles.length === 0 && scoredArticles.length > 0) {
+      const topScore = scoredArticles[0].score;
+      if (topScore >= FALLBACK_THRESHOLD) {
+        topArticles = [scoredArticles[0].art];
+        console.log(`[Chat API] Using fallback: 1 article with score ${topScore.toFixed(3)} (fallback threshold: ${FALLBACK_THRESHOLD})`);
+      } else {
+        topArticles = [];
+        console.log(`[Chat API] No articles relevant enough (top score: ${topScore.toFixed(3)}, fallback threshold: ${FALLBACK_THRESHOLD})`);
+      }
+    }
+    
+    const contextSection = topArticles.length > 0 
+      ? `CURRENT MARKET INTELLIGENCE (Live Auto Finance News):
 ${topArticles.map((a: Article, i: number) => `
 [${i + 1}] ${a.title}
 • Source: ${a.source || 'News Source'} | ${a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : 'Recent'}
 • Summary: ${a.aiSummary || a.summary}
 • Link: ${a.url}
-`).join('\n')}
+`).join('\n')}`
+      : `CURRENT MARKET INTELLIGENCE: No recent articles directly relevant to your question were found in today's auto finance news.`;
+
+    const citationGuideline = topArticles.length > 0 
+      ? "2. CITE specific articles using [1], [2], etc. when referencing news"
+      : "2. Draw from your general auto finance expertise since no directly relevant recent news is available";
+
+    const prompt = `You are an expert auto finance industry analyst and advisor with deep knowledge of automotive lending, market trends, and regulatory developments.
+
+${contextSection}
 
 YOUR ROLE & CAPABILITIES:
 - Provide expert analysis on auto finance topics including: lending rates, delinquency trends, market conditions, regulatory changes, subprime lending, EV financing, and industry forecasts
@@ -120,7 +152,7 @@ YOUR ROLE & CAPABILITIES:
 
 RESPONSE GUIDELINES:
 1. START with a direct answer to the user's question
-2. CITE specific articles using [1], [2], etc. when referencing news
+${citationGuideline}
 3. PROVIDE context beyond the articles when relevant to give comprehensive answers
 4. INCLUDE specific data points, percentages, and figures when available
 5. SUGGEST related topics or follow-up questions that might be helpful

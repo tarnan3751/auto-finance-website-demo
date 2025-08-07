@@ -223,7 +223,7 @@ export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">AI Assistant</h3>
-              <p className="text-xs text-gray-400">Powered by GPT-4</p>
+              <p className="text-xs text-gray-400">Powered by GPT-4o</p>
             </div>
           </div>
           
