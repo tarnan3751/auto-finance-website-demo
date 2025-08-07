@@ -3,8 +3,18 @@ import {OpenAI} from 'openai';
 const openai=new OpenAI({apiKey:process.env.OPENAI_API_KEY});
 
 export default async function handler(req:NextApiRequest,res:NextApiResponse){
-  if(req.method!=='POST')return res.status(405).end();
+  if(req.method!=='POST')return res.status(405).json({ error: 'Method not allowed' });
+  
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('[Reorder API] OpenAI API key not configured');
+    return res.status(500).json({ error: 'OpenAI API key not configured' });
+  }
+  
   const {articles}=req.body;
+  
+  if (!articles || !Array.isArray(articles) || articles.length === 0) {
+    return res.status(400).json({ error: 'Articles array is required and must not be empty' });
+  }
   const prompt=`You are a senior auto finance executive responsible for risk management and strategic planning. Rank these articles by their immediate business impact and actionable insights for auto finance professionals.
 
 RANKING CRITERIA (in order of importance):

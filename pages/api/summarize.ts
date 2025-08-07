@@ -10,6 +10,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('[Summarize API] OpenAI API key not configured');
+    return res.status(500).json({ error: 'OpenAI API key not configured' });
+  }
+
   try {
     const { articles } = req.body;
     

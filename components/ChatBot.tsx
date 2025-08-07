@@ -60,21 +60,27 @@ export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
 
   // Load chat history from localStorage on mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem('autoFinanceChatHistory');
-    if (savedHistory) {
-      try {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const savedHistory = localStorage.getItem('autoFinanceChatHistory');
+      if (savedHistory) {
         const parsed = JSON.parse(savedHistory);
-        setChatHistory(parsed.map((session: ChatSession) => ({
-          ...session,
-          timestamp: new Date(session.timestamp),
-          messages: session.messages.map((msg: Message) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          }))
-        })));
-      } catch {
-        console.error('Failed to load chat history');
+        if (Array.isArray(parsed)) {
+          setChatHistory(parsed.map((session: ChatSession) => ({
+            ...session,
+            timestamp: new Date(session.timestamp),
+            messages: Array.isArray(session.messages) ? session.messages.map((msg: Message) => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            })) : []
+          })));
+        }
       }
+    } catch (error) {
+      console.error('Failed to load chat history:', error);
+      // Clear corrupted localStorage data
+      localStorage.removeItem('autoFinanceChatHistory');
     }
   }, []);
 
@@ -122,7 +128,16 @@ export default function ChatBot({ onClose, currentArticles }: ChatBotProps) {
         })
       });
       
-      const data = await res.json();
+      const responseText = await res.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('Failed to parse chat response:', jsonError);
+        console.error('Chat response text:', responseText.substring(0, 500));
+        throw new Error('Invalid response from chat API');
+      }
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),

@@ -1,10 +1,12 @@
 import {useEffect,useState} from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import ArticleCard from '@components/ArticleCard';
 import ChatBot from '@components/ChatBot';
 import ChatWidget from '@components/ChatWidget';
 import LoadingSpinner from '@components/LoadingSpinner';
 import FilterDropdown, { FilterOptions } from '@components/FilterDropdown';
+import ErrorBoundary from '@components/ErrorBoundary';
 import type { Article } from '@lib/newsapi';
 
 export default function Home(){
@@ -39,11 +41,21 @@ export default function Home(){
         // Fetch news articles
         console.log('Fetching news with params:', queryParams.toString());
         const newsResponse = await fetch(`/api/news?${queryParams}`);
-        const newsData = await newsResponse.json();
+        
+        const responseText = await newsResponse.text();
         
         if (!newsResponse.ok) {
-          console.error('News API response error:', newsResponse.status, newsData);
-          throw new Error(newsData.error || newsData.message || 'Failed to fetch news');
+          console.error('News API response error:', newsResponse.status, responseText);
+          throw new Error(`Failed to fetch news: ${newsResponse.status} - ${responseText.substring(0, 200)}...`);
+        }
+        
+        let newsData;
+        try {
+          newsData = JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error('Failed to parse JSON response:', jsonError);
+          console.error('Response text:', responseText.substring(0, 500));
+          throw new Error(`Invalid JSON response from news API: ${responseText.substring(0, 100)}...`);
         }
         
         const articles = newsData.articles;
@@ -65,7 +77,17 @@ export default function Home(){
           body: JSON.stringify({ articles })
         });
         
-        const reorderData = await reorderResponse.json();
+        const reorderText = await reorderResponse.text();
+        let reorderData;
+        
+        try {
+          reorderData = JSON.parse(reorderText);
+        } catch (jsonError) {
+          console.error('Failed to parse reorder response:', jsonError);
+          console.error('Reorder response text:', reorderText.substring(0, 500));
+          // Continue with original articles if reorder fails
+          reorderData = { articles };
+        }
         let reorderedArticles = articles;
         
         if (reorderData.articles && Array.isArray(reorderData.articles)) {
@@ -80,7 +102,17 @@ export default function Home(){
             body: JSON.stringify({ articles: reorderedArticles })
           });
           
-          const summaryData = await summaryResponse.json();
+          const summaryText = await summaryResponse.text();
+          let summaryData;
+          
+          try {
+            summaryData = JSON.parse(summaryText);
+          } catch (jsonError) {
+            console.error('Failed to parse summary response:', jsonError);
+            console.error('Summary response text:', summaryText.substring(0, 500));
+            // Continue with original articles if summary fails
+            summaryData = { articles: reorderedArticles };
+          }
           if (summaryData.articles && Array.isArray(summaryData.articles)) {
             setSorted(summaryData.articles);
           } else {
@@ -125,7 +157,7 @@ export default function Home(){
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 rounded-xl blur-lg opacity-50"></div>
                   <div className="relative">
-                    <img src="/images/exeter_logo.png" alt="Exeter Logo" className="w-12 h-12 object-contain" />
+                    <Image src="/images/exeter_logo.png" alt="Exeter Logo" className="w-12 h-12 object-contain" width={48} height={48} />
                   </div>
                 </div>
                 <div>
@@ -222,19 +254,21 @@ export default function Home(){
           </div>
 
           {error ? (
-            <div className="glass rounded-2xl p-8 text-center">
-              <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h3 className="text-xl font-semibold text-white mb-2">Unable to Load Articles</h3>
-              <p className="text-gray-400 mb-4">{error}</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 text-white rounded-lg font-medium hover:shadow-glow transition-all"
-              >
-                Try Again
-              </button>
-            </div>
+            <ErrorBoundary>
+              <div className="glass rounded-2xl p-8 text-center">
+                <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-xl font-semibold text-white mb-2">Unable to Load Articles</h3>
+                <p className="text-gray-400 mb-4">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-gradient-to-r from-teal-700 via-teal-600 to-lime-500 text-white rounded-lg font-medium hover:shadow-glow transition-all"
+                >
+                  Try Again
+                </button>
+              </div>
+            </ErrorBoundary>
           ) : loading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <LoadingSpinner 
@@ -257,11 +291,15 @@ export default function Home(){
               </div>
             </div>
           ) : (
-            <div className="grid gap-6">
-              {sorted.map((a,i)=>(
-                <ArticleCard key={i} rank={i+1} {...a}/>
-              ))}
-            </div>
+            <ErrorBoundary>
+              <div className="grid gap-6">
+                {sorted.map((a,i)=>(
+                  <ErrorBoundary key={i}>
+                    <ArticleCard rank={i+1} {...a}/>
+                  </ErrorBoundary>
+                ))}
+              </div>
+            </ErrorBoundary>
           )}
         </main>
 
@@ -272,7 +310,7 @@ export default function Home(){
               <div className="md:col-span-2">
                 <div className="flex items-center gap-3 mb-4">
                   <div>
-                    <img src="/images/exeter_logo.png" alt="Exeter Logo" className="w-10 h-10 object-contain" />
+                    <Image src="/images/exeter_logo.png" alt="Exeter Logo" className="w-10 h-10 object-contain" width={40} height={40} />
                   </div>
                   <span className="text-xl font-bold text-white font-space">ExeterHub</span>
                 </div>

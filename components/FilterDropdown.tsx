@@ -46,8 +46,12 @@ export default function FilterDropdown({ filters, onFilterChange, isLoading }: F
   const handleApplyFilters = () => {
     // Clear any local storage or cached data
     if (typeof window !== 'undefined') {
-      // Force a fresh fetch by adding a timestamp
-      window.localStorage.setItem('filterChangeTime', Date.now().toString());
+      try {
+        // Force a fresh fetch by adding a timestamp
+        window.localStorage.setItem('filterChangeTime', Date.now().toString());
+      } catch (error) {
+        console.warn('Failed to save filter timestamp to localStorage:', error);
+      }
     }
     onFilterChange(tempFilters);
     setIsOpen(false);
@@ -57,7 +61,11 @@ export default function FilterDropdown({ filters, onFilterChange, isLoading }: F
     const resetFilters = { dateRange: 'all', country: 'all', sourceQuality: 'all' };
     // Clear any local storage or cached data
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem('filterChangeTime', Date.now().toString());
+      try {
+        window.localStorage.setItem('filterChangeTime', Date.now().toString());
+      } catch (error) {
+        console.warn('Failed to save filter timestamp to localStorage:', error);
+      }
     }
     setTempFilters(resetFilters);
     onFilterChange(resetFilters);

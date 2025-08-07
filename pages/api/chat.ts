@@ -22,8 +22,20 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 function cosine(a:number[],b:number[]){const dot=a.reduce((s,x,i)=>s+x*b[i],0);const magA=Math.sqrt(a.reduce((s,x)=>s+x*x,0));const magB=Math.sqrt(b.reduce((s,y)=>s+y*y,0));return dot/(magA*magB);}  
 
 export default async function handler(req:NextApiRequest,res:NextApiResponse){
-  if(req.method!=='POST')return res.status(405).end();
+  if(req.method!=='POST')return res.status(405).json({ error: 'Method not allowed' });
+  
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('[Chat API] OpenAI API key not configured');
+    return res.status(500).json({ 
+      response: "I'm currently unavailable due to configuration issues. Please contact support." 
+    });
+  }
+  
   const {question, articles: providedArticles}=req.body;
+  
+  if (!question || typeof question !== 'string') {
+    return res.status(400).json({ error: 'Question is required and must be a string' });
+  }
   
   console.log('[Chat API] Received question:', question);
   console.log('[Chat API] Provided articles count:', providedArticles?.length || 0);

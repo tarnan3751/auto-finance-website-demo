@@ -35,6 +35,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Check for required environment variables
+  if (!process.env.NEWS_API_KEY) {
+    console.error('[/api/news] NEWS_API_KEY environment variable is not set');
+    return res.status(500).json({ 
+      error: 'Server configuration error',
+      message: 'NEWS_API_KEY is not configured. Please check your environment variables.'
+    });
+  }
+
   try {
     // Clean old cache entries periodically
     cleanCache();
@@ -148,9 +157,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('News API handler error:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch news articles',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
+    
+    // Ensure we always return JSON even if headers are already sent
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        error: 'Failed to fetch news articles',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        details: process.env.NODE_ENV === 'development' ? error : undefined
+      });
+    }
   }
 }

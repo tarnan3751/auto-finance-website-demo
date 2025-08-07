@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 type Props = { rank:number; title:string; summary:string; aiSummary?:string; image:string; url:string; publishedAt?:string; };
 
@@ -50,23 +51,15 @@ export default function ArticleCard({ rank,title,summary,aiSummary,image,url,pub
       <div className="flex gap-6">
         {/* Image */}
         <div className="relative flex-shrink-0 w-48 h-36 rounded-xl overflow-hidden bg-gray-800">
-          <img 
+          <Image 
             src={image} 
             alt={title} 
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            width={192}
+            height={144}
             onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement!.innerHTML = `
-                <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-700">
-                  <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <g>
-                      <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path d="M3 3l18 18" stroke-linecap="round" />
-                    </g>
-                  </svg>
-                </div>
-              `;
+              e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM0YjU1NjM7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzM3NDE1MztzdG9wLW9wYWNpdHk6MSIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSJ1cmwoI2dyYWQpIiAvPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIwMCAxNTApIj4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSItMTAiIHI9IjIwIiBmaWxsPSIjNmI3Mjg0IiBvcGFjaXR5PSIwLjUiIC8+CiAgICA8cGF0aCBkPSJNLTEwIC0xMCBMMTAgMTAgTS0xMCAxMCBMMTAgLTEwIiBzdHJva2U9IiM2YjcyODQiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iMC41IiAvPgogIDwvZz4KPC9zdmc+';
+              e.currentTarget.alt = 'Image not available';
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
