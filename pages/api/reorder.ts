@@ -58,7 +58,7 @@ EVALUATION APPROACH:
 Articles to rank:
 ${articles.map((a:{title:string;summary:string},i:number)=>`${i+1}. ${a.title}: ${a.summary}`).join('\n')}
 
-Analyze each article's business impact and return a JSON array of 0-based indices ordered from highest to lowest priority: [x,y,z,...]`;
+Analyze each article's business impact and return ONLY a JSON array of 0-based indices ordered from highest to lowest priority. Do not include any explanatory text, markdown formatting, or code blocks - just return the raw JSON array: [x,y,z,...]`;
   const chat = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
@@ -76,17 +76,40 @@ Analyze each article's business impact and return a JSON array of 0-based indice
     return res.status(500).json({ error: 'No content returned from OpenAI.' });
   }
   try {
+    // First try direct JSON parse
     idx = JSON.parse(content);
     console.log('AI returned indices:', idx);
   } catch {
-    console.log('Failed to parse JSON, trying regex fallback. Content:', content);
-    const matches = content.match(/\d+/g);
-    if (!matches) {
-      console.error('No indices found in AI response:', content);
-      return res.status(500).json({ error: 'Could not parse indices from OpenAI response.' });
+    // If direct parse fails, try to extract JSON from markdown code blocks
+    console.log('Direct JSON parse failed, trying to extract from markdown...');
+    
+    // Look for JSON array in markdown code blocks
+    const jsonMatch = content.match(/```(?:json)?\s*(\[[^\]]+\])\s*```/i);
+    if (jsonMatch && jsonMatch[1]) {
+      try {
+        idx = JSON.parse(jsonMatch[1]);
+        console.log('Successfully extracted indices from markdown:', idx);
+      } catch {
+        console.log('Failed to parse extracted JSON, trying regex fallback. Content:', content);
+        const matches = content.match(/\d+/g);
+        if (!matches) {
+          console.error('No indices found in AI response:', content);
+          return res.status(500).json({ error: 'Could not parse indices from OpenAI response.' });
+        }
+        idx = matches.map(n => parseInt(n, 10) - 1);
+        console.log('Regex fallback indices:', idx);
+      }
+    } else {
+      // If no markdown block found, use regex fallback
+      console.log('No markdown JSON block found, trying regex fallback. Content:', content);
+      const matches = content.match(/\d+/g);
+      if (!matches) {
+        console.error('No indices found in AI response:', content);
+        return res.status(500).json({ error: 'Could not parse indices from OpenAI response.' });
+      }
+      idx = matches.map(n => parseInt(n, 10) - 1);
+      console.log('Regex fallback indices:', idx);
     }
-    idx = matches.map(n => parseInt(n, 10) - 1);
-    console.log('Regex fallback indices:', idx);
   }
   // Validate indices and ensure uniqueness
   const usedIndices = new Set<number>();

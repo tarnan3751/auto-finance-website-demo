@@ -289,34 +289,41 @@ export async function fetchAutoFinanceNews(
       }
     }
     
-    // Calculate date based on filter
+    // Calculate date based on filter - accounting for NewsAPI free tier 1-day delay
     const fromDate = new Date();
     let fromDateStr = '';
     
     switch (filters?.dateRange) {
       case '24hours':
-        // For free tier, use 48 hours to get more results
-        fromDate.setDate(fromDate.getDate() - 2);
+        // Free tier has 1-day delay, so "24 hours" means articles from 2-3 days ago
+        // Set to 3 days ago to ensure we capture articles from "yesterday" (which are actually 2 days old)
+        fromDate.setDate(fromDate.getDate() - 3);
         fromDateStr = fromDate.toISOString().split('T')[0];
+        console.log('[fetchAutoFinanceNews] 24-hour filter: fetching from 3 days ago to account for API delay');
         break;
       case 'week':
-        fromDate.setDate(fromDate.getDate() - 7);
+        // For week filter, extend to 8 days to account for delay
+        fromDate.setDate(fromDate.getDate() - 8);
         fromDateStr = fromDate.toISOString().split('T')[0];
+        console.log('[fetchAutoFinanceNews] Week filter: fetching from 8 days ago to account for API delay');
         break;
       case 'month':
-        // Maximum allowed for free tier
+        // Maximum allowed for free tier (30 days) - no need to extend further
         fromDate.setDate(fromDate.getDate() - 30);
         fromDateStr = fromDate.toISOString().split('T')[0];
+        console.log('[fetchAutoFinanceNews] Month filter: fetching from 30 days ago (API maximum)');
         break;
       case 'all':
-        // For 'all', use maximum allowed (30 days)
+        // For 'all', use maximum allowed (30 days) - this is the API limit
         fromDate.setDate(fromDate.getDate() - 30);
         fromDateStr = fromDate.toISOString().split('T')[0];
+        console.log('[fetchAutoFinanceNews] All time filter: fetching from 30 days ago (API maximum)');
         break;
       default:
-        // Default to past week
-        fromDate.setDate(fromDate.getDate() - 7);
+        // Default to past week with delay adjustment
+        fromDate.setDate(fromDate.getDate() - 8);
         fromDateStr = fromDate.toISOString().split('T')[0];
+        console.log('[fetchAutoFinanceNews] Default filter: fetching from 8 days ago to account for API delay');
     }
     
     console.log('[fetchAutoFinanceNews] Date range:', filters?.dateRange, 'From date:', fromDateStr);
